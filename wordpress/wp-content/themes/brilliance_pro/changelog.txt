@@ -1,0 +1,14 @@
+Version 2.1.2
+Fix - Fixed an issue with slide opacity when there is only one slide created
+
+Version 2.1.1
+Feature - Upgraded core to latest version
+
+Version 2.1.0
+Tweaks - Minor fixes and updates
+
+Version 2.0.1
+Tweak - Changed default background color for the page title to secondary
+
+Version 2.0.0
+Theme release!
