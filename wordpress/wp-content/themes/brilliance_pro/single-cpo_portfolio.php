@@ -2,7 +2,6 @@
 
 <div id="main" class="main">
 	<div class="container">
-		<?php cpotheme_post_media(get_the_ID(), get_post_meta(get_the_ID(), 'portfolio_layout', true)); ?>
 		<section id="content" class="content">
 			<?php do_action('cpotheme_before_content'); ?>
 			<?php if(have_posts()) while(have_posts()): the_post(); ?>
@@ -18,6 +17,7 @@
 			
 			<?php do_action('cpotheme_after_content'); ?>
 		</section>
+		<?php cpotheme_post_media(get_the_ID(), get_post_meta(get_the_ID(), 'portfolio_layout', true)); ?>
 		<?php get_sidebar(); ?>
 		<div class="clear"></div>
 	</div>
