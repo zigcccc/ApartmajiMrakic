@@ -529,7 +529,7 @@ if(!function_exists('cpotheme_fonts')){
 
 //Creates a grid of columns for display templated content, running the WordPress loop
 if(!function_exists('cpotheme_grid')){
-	function cpotheme_grid($posts, $element, $template, $columns = 3, $args = null){
+	function cpotheme_grid($posts, $element, $template, $columns = 4, $args = null){
 		if($posts == null){
 			cpotheme_grid_default($element, $template, $columns, $args);
 		}else{
@@ -542,9 +542,9 @@ if(!function_exists('cpotheme_grid')){
 
 //Runs the grid using the default loop
 if(!function_exists('cpotheme_grid_default')){
-	function cpotheme_grid_default($element, $template, $columns = 3, $args = null){
+	function cpotheme_grid_default($element, $template, $columns = 4, $args = null){
 		$class = isset($args['class']) ? $args['class'] : '';
-		if($columns == '') $columns = 3;
+		if($columns == '') $columns = 4;
 		
 		echo '<div class="row">';
 		$count = 0;
@@ -567,10 +567,10 @@ if(!function_exists('cpotheme_grid_default')){
 
 //Runs the grid using a custom loop
 if(!function_exists('cpotheme_grid_custom')){
-	function cpotheme_grid_custom($posts, $element, $template, $columns = 3, $args = null){
+	function cpotheme_grid_custom($posts, $element, $template, $columns = 4, $args = null){
 		global $post;
 		$class = isset($args['class']) ? $args['class'] : '';
-		if($columns == '') $columns = 3;
+		if($columns == '') $columns = 4;
 		
 		echo '<div class="row">';
 		$count = 0;
@@ -1003,7 +1003,7 @@ if(!function_exists('cpotheme_post_slideshow')){
 
 //Displays a gallery of the given query
 if(!function_exists('cpotheme_post_gallery')){
-	function cpotheme_post_gallery($images, $columns = 3, $size = 'portfolio', $options = null){
+	function cpotheme_post_gallery($images, $columns = 4, $size = 'portfolio', $options = null){
 		$attachments = array_filter(explode(',', $images));
 		$column_style = isset($options['style']) ? $options['style'] : 'column-narrow';
 		$feature_count = 0;
