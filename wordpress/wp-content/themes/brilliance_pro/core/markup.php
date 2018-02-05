@@ -210,7 +210,23 @@ if(!function_exists('cpotheme_logo')){
 		if(cpotheme_get_option('general_texttitle') == 0){
 			if(cpotheme_get_option('general_logo') == ''){
 				if(defined('CPOTHEME_LOGO_WIDTH')) $width = CPOTHEME_LOGO_WIDTH;
-				$output .= '<a class="site-logo" href="'.home_url().'"><img src="'.get_template_directory_uri().'/images/logo.png" alt="'.get_bloginfo('name').'" width="'.esc_attr($width).'" height="'.esc_attr($height).'"/></a>';
+				$logo_url = '';
+				if(function_exists('pll_current_language')){
+					$logos = array(
+						'sl' => 'logo-sl.png',
+						'en' => 'logo-en.png'
+					);
+					$default_logo = $logos['sl'];
+					$current_lang = pll_current_language();
+					$assets_url = get_template_directory_uri() . '/images/';
+					if (isset($logos[$current_lang])) {
+						$logo_url = $assets_url . $logos[$current_lang];
+					}
+					else {
+						$logo_url = $assets_url . $default_logo;
+					}
+				}
+				$output .= '<a class="site-logo" href="'.home_url().'"><img src="'. $logo_url . '" alt="'.get_bloginfo('name').'" width="250" height="'.esc_attr($height).'"/></a>';
 			}else{
 				$logo_width = cpotheme_get_option('general_logo_width');
 				$logo_url = esc_url(cpotheme_get_option('general_logo'));

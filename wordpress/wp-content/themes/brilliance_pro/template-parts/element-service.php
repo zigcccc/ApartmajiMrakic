@@ -4,13 +4,13 @@
 	</a>
 	<div class="service-body">
 		<h3 class="service-title">
-			<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+			<a href="<?php echo get_field('povezava_na_stran'); ?>"><?php the_title(); ?></a>
 		</h3>
 		<div class="service-content">
 			<?php the_excerpt(); ?>
 		</div>
-		<a class="service-readmore" href="<?php the_permalink(); ?>">
-			<?php _e('Read More', 'cpocore'); ?>
+		<a class="service-readmore" href="<?php echo get_field('povezava_na_stran'); ?>">
+			<?php echo get_field('besedilo_povezave'); ?>
 		</a>
 		<?php cpotheme_edit(); ?>
 	</div>

@@ -35,3 +35,9 @@ new Epsilon_Framework( $epsilon_framework_settings );
 
 // Add welcome screen
 require get_template_directory() . '/core/welcome-screen/welcome-page-setup.php';
+
+// Add custom translation strings
+//                   Name          String                 Group			Multiline
+pll_register_string('basic_info', 'Osnovne informacije', 'Apartma', false);
+pll_register_string('extras', 'Dodatna oprema', 'Apartma', false);
+pll_register_string('rooms', 'O sobah', 'Apartma', false);
