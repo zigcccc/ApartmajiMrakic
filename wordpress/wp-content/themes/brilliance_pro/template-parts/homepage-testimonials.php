@@ -10,12 +10,14 @@
 			<?php while($feature_posts->have_posts()): $feature_posts->the_post(); ?>
 			<?php ob_start(); ?>
 			<div class="testimonial-page" id="testimonial-<?php echo $count; ?>" data-slide="<?php echo $count; ?>">
-				<?php the_post_thumbnail(array(150,150)); ?>
+				<?php echo get_field('ocena_gosta'); //the_post_thumbnail(array(150,150)); ?>
 			</div>
 			<?php $testimonial_images .= ob_get_clean(); ?>
 			<div class="testimonial" id="testimonial-<?php echo $count; ?>-content" data-slide="<?php echo $count; ?>">
-				<div class="column col4">
-					<?php the_post_thumbnail('portfolio', array('class' => 'testimonial-image')); ?>
+				<div class="column col4 guest-review-container">
+					<?php //var_dump(get_field('ocena_gosta')); ?>
+					<span class="guest-review"><?php echo get_field('ocena_gosta'); ?></span>
+					<?php //the_post_thumbnail('portfolio', array('class' => 'testimonial-image')); ?>
 				</div>
 				<div class="column col4x3 col-last">
 					<div class="testimonial-content">

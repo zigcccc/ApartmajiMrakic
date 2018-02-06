@@ -2493,7 +2493,11 @@ a.ctsc-button.section-cta {
   max-width: 150px;
 }
 
-@media screen and (min-width: 769px){
+a.ctsc-button.section-cta .ctsc-button-description {
+  text-align: center;
+}
+
+@media screen and (min-width: 769px) {
   .ctsc-feature {
     display: flex;
     flex-direction: column;

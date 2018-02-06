@@ -14,4 +14,16 @@ document.addEventListener('DOMContentLoaded', function(){
 			document.body.classList.remove('menu-mobile-active');
 		});
 	}
+
+	var dataLayer = window.dataLayer || [];
+	var CTA_btn = document.querySelectorAll('.ctsc-button');
+	CTA_btn.forEach(function(elem, i){
+		elem.addEventListener('click', function(event){
+			var targetURL = event.target.href;
+			dataLayer.push({
+				event: 'CTA_Click',
+				targetURL: targetURL
+			})	
+		})
+	})
 });
