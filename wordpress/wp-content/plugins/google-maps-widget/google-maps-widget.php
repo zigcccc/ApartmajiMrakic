@@ -4,13 +4,13 @@ Plugin Name: Google Maps Widget PRO
 Plugin URI: http://www.gmapswidget.com/
 Description: Display a single image super-fast loading Google map in a widget. A larger, full featured map is available as an image replacement or in a lightbox. Includes multiple pins per map, shortcode support and numerous appearance options.
 Author: Web factory Ltd
-Version: 5.30
+Version: 5.35
 Author URI: http://www.webfactoryltd.com/
 Text Domain: google-maps-widget
 Domain Path: lang
 
   Copyright 2012 - 2018  Web factory Ltd  (email : gmw@webfactoryltd.com)
-  
+
   This program is NOT free software; you can't redistribute it and/or modify
   under any terms without written permission from Web Factory Ltd.
 
@@ -43,16 +43,16 @@ class GMWP {
   static $options = 'gmw_options';
   static $licensing_servers = array('http://license.gmapswidget.com/', 'http://license2.gmapswidget.com/');
 
-  
+
   // get plugin version from header
   static function get_plugin_version() {
     $plugin_data = get_file_data(__FILE__, array('version' => 'Version'), 'plugin');
     GMWP::$version = $plugin_data['version'];
-     
+
     return $plugin_data['version'];
   } // get_plugin_version
-  
-  
+
+
   // hook everything up
   static function init() {
     if (is_admin()) {
@@ -60,7 +60,7 @@ class GMWP {
       if (false === GMWP::check_wp_version(4.0)) {
         return false;
       }
-      
+
       // check if GMW is active
       if (true === class_exists('GMW')) {
         add_action('admin_notices', array('GMWP', 'notice_gmw_active_error'));
@@ -122,7 +122,7 @@ class GMWP {
   // initialize widgets
   static function widgets_init() {
     $options = GMWP::get_options();
-    
+
     register_widget('GoogleMapsWidget');
 
     if (!$options['disable_sidebar']) {
@@ -149,7 +149,7 @@ class GMWP {
   static function sanitize_settings($values) {
     $new_values = array();
     $old_options = GMWP::get_options();
-                  
+
     // license_key_changed
     if (isset($_POST['submit-license'])) {
       if (empty($values['activation_code'])) {
@@ -198,7 +198,7 @@ class GMWP {
         } // switch
       } // foreach
 
-      $values = GMWP::check_var_isset($values, array('track_ga' => '0', 'include_jquery' => '0', 'include_lightbox_js' => '0', 'include_lightbox_css' => '0', 'include_gmaps_api' => '0', 'disable_tooltips' => '0', 'disable_sidebar' => '0'));  
+      $values = GMWP::check_var_isset($values, array('track_ga' => '0', 'include_jquery' => '0', 'include_lightbox_js' => '0', 'include_lightbox_css' => '0', 'include_gmaps_api' => '0', 'disable_tooltips' => '0', 'disable_sidebar' => '0'));
 
       if (strlen($values['api_key']) < 30) {
         add_settings_error(GMWP::$options, 'api_key', __('Google Maps API key is not valid. Access <a href="https://console.developers.google.com/project" target="_blank">Google Developers Console</a> to generate a key for free or read detailed <a href="http://www.gmapswidget.com/documentation/generate-google-maps-api-key/" target="_blank">instructions</a>.', 'google-maps-widget'), 'error');
@@ -207,7 +207,7 @@ class GMWP {
       if (empty($values['sc_map'])) {
         $values['sc_map'] = 'gmw';
         add_settings_error(GMWP::$options, 'api_key', __('Map Shortcode is not valid. Please enter a valid shortcode name, eg: <i>gmw</i>.', 'google-maps-widget'), 'error');
-      }  
+      }
     } elseif (isset($_POST['submit-import'])) { // import widgets
       $import_data = GMWP_export_import::validate_import_file();
       if (is_wp_error($import_data)) {
@@ -216,12 +216,109 @@ class GMWP {
         $results = GMWP_export_import::process_import_file($import_data);
         add_settings_error(GMWP::$options, 'import_widgets', __($results['total'] . ' widgets imported.', 'google-maps-widget'), 'updated');
       }
+    } elseif (isset($_POST['submit-import-pins'])) { // import pins
+      if (empty($values['widget_id'])) {
+        add_settings_error(GMWP::$options, 'import_pins', 'Please select a widget you want to import pins to.', 'error');
+        return $old_options;
+      }
+
+      if (empty($values['pins_txt']) && empty($_FILES['pins_file']['tmp_name'])) {
+        add_settings_error(GMWP::$options, 'import_pins', 'Please provide the pin data in textarea, or upload a file.', 'error');
+        return $old_options;
+      }
+
+      if (!empty($values['pins_txt'])) {
+        $data = array();
+        $rows = explode(PHP_EOL, trim($values['pins_txt']));
+        foreach ($rows as $row) {
+          $data[] = str_getcsv(trim($row), ',', '"', '\\');
+        }
+        set_transient('pins_import_tmp', $data, HOUR_IN_SECONDS);
+        set_transient('pins_import_widget_id', $values['widget_id'], HOUR_IN_SECONDS);
+        add_settings_error(GMWP::$options, 'import_pins', 'Please verify the integrity of import data.', 'updated');
+      }
+
+      if (!empty($_FILES['pins_file']['tmp_name'])) {
+        $data = array();
+        $rows = file($_FILES['pins_file']['tmp_name']);
+        if (empty($rows)) {
+          add_settings_error(GMWP::$options, 'import_pins', 'Unable to read pins file.', 'error');
+          return;
+        }
+        foreach ($rows as $row) {
+          if (empty($row)) {
+            continue;
+          }
+          $data[] = str_getcsv(trim($row), ',', '"', '\\');
+        }
+        set_transient('pins_import_tmp', $data, HOUR_IN_SECONDS);
+        set_transient('pins_import_widget_id', $values['widget_id'], HOUR_IN_SECONDS);
+        add_settings_error(GMWP::$options, 'import_pins', 'Please verify the integrity of import data.', 'updated');
+      }
+    } elseif (isset($_POST['submit-import-pins-cancel'])) { // import pins cancel
+      set_transient('pins_import_tmp', false);
+      set_transient('pins_import_widget_id', false);
+      add_settings_error(GMWP::$options, 'import_pins', 'Pins import canceled.', 'error');
+      return $old_options;
+    } elseif (isset($_POST['submit-import-pins-final'])) { // import pins finalize
+      if (!get_transient('pins_import_tmp') || get_transient('pins_import_widget_id') === false) {
+        add_settings_error(GMWP::$options, 'import_pins', 'Undocumented error. Please try again.', 'error');
+        return $old_options;
+      }
+
+      $pins = $out = array();
+      $data = get_transient('pins_import_tmp');
+      foreach ($data as $pin) {
+        $tmp = array();
+        $tmp['address'] = $pin[0];
+        $tmp['show_on'] = $pin[1];
+        $tmp['thumb_pin_color'] = $pin[2];
+        $tmp['interactive_pin_img'] = $pin[3];
+        $tmp['interactive_pin_click'] = $pin[4];
+        $tmp['description'] = $pin[5];
+        $tmp['interactive_pin_url'] = $pin[6];
+        $tmp['group'] = $pin[7];
+
+        if (preg_match('|^([-+]?\d{1,2}([.]\d+)?),\s*([-+]?\d{1,3}([.]\d+)?)$|', $tmp['address'])) {
+          $tmp['latlng'] = true;
+          $tmp2 = explode(',', $tmp['address']);
+          $tmp['lat'] = trim($tmp2[0]);
+          $tmp['lng'] = trim($tmp2[1]);
+          $tmp['from_cache'] = false;
+          $tmp['cache_address'] = false;
+        } else {
+          $cache = GMWP::get_coordinates($tmp['address'], false);
+          if ($cache) {
+            $tmp['lat'] = $cache['lat'];
+            $tmp['lng'] = $cache['lng'];
+            $tmp['cache_address'] = $cache['address'];
+            $tmp['from_cache'] = true;
+            $tmp['latlng'] = true;
+          } else {
+            $tmp['from_cache'] = false;
+            $tmp['latlng'] = false;
+          }
+        }
+        $pins[] = $tmp;
+      } // foreach
+
+      $instances = get_option('widget_googlemapswidget', array());
+      $widget_id = get_transient('pins_import_widget_id');
+
+      $instances[$widget_id]['pins'] = $pins;
+      $instances[$widget_id]['multiple_pins'] = 1;
+      update_option('widget_googlemapswidget', $instances);
+
+      set_transient('pins_import_tmp', false);
+      set_transient('pins_import_widget_id', false);
+      add_settings_error(GMWP::$options, 'import_pins', 'Pins imported!', 'updated');
+      return $old_options;
     }
 
     return array_merge($old_options, $values);
   } // sanitize_settings
 
-  
+
   // return default options
   static function default_options() {
     $defaults = array('sc_map'               => 'gmw',
@@ -314,8 +411,8 @@ class GMWP {
   static function notice_min_version_error() {
     echo '<div class="error"><p>' . sprintf(__('Google Maps Widget PRO <b>requires WordPress version 4.0</b> or higher to function properly. You are using WordPress version %s. Please <a href="%s">update it</a>.', 'google-maps-widget'), get_bloginfo('version'), admin_url('update-core.php')) . '</p></div>';
   } // notice_min_version_error
-  
-  
+
+
   // if GMW is active abort
   static function notice_gmw_active_error() {
     echo '<div class="error"><p>Please <b>disable Google Maps Widget (non PRO version)</b> if you want to run the PRO version. Both PRO and non-PRO versions can\'t be active at the same time.<br>License, settings and widgets will be preserved. No need to backup or transfer anything.</p></div>';
@@ -337,11 +434,11 @@ class GMWP {
                               'AIzaSyCLreV6CeBf3NDzpDfspK3BNQWIiK4qA80',
                               'AIzaSyAMdoX_dkbALmUcN6vXazWXRoMz-gG8lVI',
                               'AIzaSyAkdW5Zp4O-96nZyFKq13UUgIHY9Yabvg8');
-    
+
     if ($type == 'test' && strlen($options['api_key']) < 30) {
       return false;
     }
-                              
+
     if (!empty($options['api_key'])) {
         return $options['api_key'];
     } else {
@@ -349,12 +446,12 @@ class GMWP {
         return $default_api_keys[0];
     }
   } // get_api_key
-  
 
-  // checkes if API key is active for all needed API services  
+
+  // checkes if API key is active for all needed API services
   static function test_api_key_ajax() {
     check_ajax_referer('gmw_test_api_key');
-    
+
     $msg = '';
     $error = false;
     $api_key = trim(@$_GET['api_key']);
@@ -366,7 +463,7 @@ class GMWP {
       $msg .= 'Google Static Maps API test - FAILED' . "\n";
       $error = true;
     }
-    
+
     $test = wp_remote_get(esc_url_raw('https://www.google.com/maps/embed/v1/place?q=new+york+usa&key=' . $api_key));
     if (wp_remote_retrieve_response_message($test) == 'OK') {
       $msg .= 'Google Embed Maps API test - OK' . "\n\n";
@@ -374,17 +471,17 @@ class GMWP {
       $msg .= 'Google Embed Maps API test - FAILED' . "\n\n";
       $error = true;
     }
-    
+
     if ($error) {
       $msg .= 'Something is not right. Please read the instruction below on how to generate the API key and double-check everything.';
     } else {
       $msg = 'The API key is OK! Don\'t forget to save it ;)';
     }
 
-    wp_send_json_success($msg);    
+    wp_send_json_success($msg);
   } // test_api_key
 
-  
+
   // build a complete URL for the iframe map
   static function build_lightbox_url($widget) {
     $map_params = array();
@@ -414,7 +511,7 @@ class GMWP {
       }
     } elseif ($widget['lightbox_mode'] == 'search') {
       if (($coordinates = GMWP::get_coordinates($widget['address'])) !== false) {
-        $map_params['center'] = $coordinates['lat'] . ',' . $coordinates['lng'];  
+        $map_params['center'] = $coordinates['lat'] . ',' . $coordinates['lng'];
       }
       $map_params['q'] = $widget['lightbox_search'];
       $map_params['maptype'] = $widget['lightbox_map_type'];
@@ -425,7 +522,7 @@ class GMWP {
       }
     } elseif ($widget['lightbox_mode'] == 'view') {
       if (($coordinates = GMWP::get_coordinates($widget['address'])) !== false) {
-        $map_params['center'] = $coordinates['lat'] . ',' . $coordinates['lng'];  
+        $map_params['center'] = $coordinates['lat'] . ',' . $coordinates['lng'];
       }
       $map_params['maptype'] = $widget['lightbox_map_type'];
       if ($widget['lightbox_zoom'] != 'auto') {
@@ -435,7 +532,7 @@ class GMWP {
       }
     } elseif ($widget['lightbox_mode'] == 'streetview') {
       if (($coordinates = GMWP::get_coordinates($widget['address'])) !== false) {
-        $map_params['location'] = $coordinates['lat'] . ',' . $coordinates['lng'];  
+        $map_params['location'] = $coordinates['lat'] . ',' . $coordinates['lng'];
       }
       $map_params['heading'] = $widget['lightbox_heading'];
       $map_params['pitch'] = $widget['lightbox_pitch'];
@@ -451,8 +548,8 @@ class GMWP {
 
     return $map_url;
   } // build_lightbox_url
-  
-  
+
+
   // fetch coordinates based on the address
   static function get_coordinates($address, $force_refresh = false) {
     $address_hash = md5('gmw_' . $address);
@@ -488,7 +585,7 @@ class GMWP {
 
     return $data;
   } // get_coordinates
-  
+
 
   // print dialogs markup in footer
   static function dialogs_markup() {
@@ -497,7 +594,7 @@ class GMWP {
      $js_vars = array();
      $options = GMWP::get_options();
      $measure_title = array('dark', 'sketchtoon', 'darkrimmed', 'fancyoverlay', 'rounded-white', 'noimage');
-     
+
      if (empty(GoogleMapsWidget::$widgets)) {
        return;
      }
@@ -505,10 +602,32 @@ class GMWP {
      foreach (GoogleMapsWidget::$widgets as $widget) {
        if ($widget['multiple_pins']) {
          $multiple_pins = true;
+         $groups = array();
+         $groups_html = '';
          $tmp = sizeof($widget['pins']);
+
          for ($i = 0; $i < $tmp; $i++) {
            $widget['pins'][$i]['description'] = wpautop(do_shortcode($widget['pins'][$i]['description']));
+           if (!empty($widget['lightbox_filtering']) && !empty($widget['pins'][$i]['group'])) {
+             $groups = array_merge($groups, explode(',', $widget['pins'][$i]['group']));
+           } else {
+             $widget['pins'][$i]['group'] = '';
+           }
          }
+
+         if (!empty($groups)) {
+           $tmp = '';
+           for ($i = 0; $i < sizeof($groups); $i++) {
+             $groups[$i] = trim($groups[$i]);
+           } // for
+           $groups = array_values(array_unique($groups));
+           for ($i = 0; $i < sizeof($groups); $i++) {
+             $tmp .= '<span class="gmw-group-wrap"><input id="gmw-group-' . $widget['id'] . '-' . $i . '" type="checkbox" value="1" data-group-name="' . $groups[$i] . '" checked><label for="gmw-group-' . $widget['id'] . '-' . $i . '">' . $groups[$i] . '</label></span><br>';
+           } // for
+           $groups_html =  '<div class="gmw-groups-wrap"><b>Filter pins</b><br>' . $tmp . '</div>';
+         }
+         $js_vars[$widget['id']]['groups_html'] = $groups_html;
+
          $js_vars[$widget['id']]['pins'] = $widget['pins'];
          if ($widget['lightbox_color_scheme'] == 'custom') {
            $js_vars[$widget['id']]['lightbox_color_scheme'] = $widget['lightbox_color_scheme_custom'];
@@ -528,18 +647,19 @@ class GMWP {
            $js_vars[$widget['id']]['lightbox_layer'][$layer] = true;
          }
        } else {
-         $js_vars[$widget['id']]['map_url'] = GMWP::build_lightbox_url($widget);  
+         $js_vars[$widget['id']]['map_url'] = GMWP::build_lightbox_url($widget);
        }
 
        if ($widget['lightbox_fullscreen']) {
          $widget['lightbox_width'] = '100%';
          $widget['lightbox_height'] = '100%';
        }
-       
+
        $js_vars[$widget['id']]['widget_id'] = $widget['id'];
        $js_vars[$widget['id']]['lightbox_height'] = $widget['lightbox_height'];
        $js_vars[$widget['id']]['lightbox_width'] = $widget['lightbox_width'];
        $js_vars[$widget['id']]['lightbox_clustering'] = (int) @$widget['lightbox_clustering'];
+       $js_vars[$widget['id']]['lightbox_filtering'] = (int) @$widget['lightbox_filtering'];
        $js_vars[$widget['id']]['thumb_width'] = $widget['thumb_width'];
        $js_vars[$widget['id']]['thumb_height'] = $widget['thumb_height'];
        $js_vars[$widget['id']]['lightbox_skin'] = $widget['lightbox_skin'];
@@ -550,11 +670,11 @@ class GMWP {
        $js_vars[$widget['id']]['close_overlay'] = (int) in_array('overlay_close', $widget['lightbox_feature']);
        $js_vars[$widget['id']]['close_esc'] = (int) in_array('esc_close', $widget['lightbox_feature']);
 
-       $out .= '<div class="gmw-dialog" 
-                style="display: none;" 
-                id="gmw-dialog-' . $widget['id'] . '" 
+       $out .= '<div class="gmw-dialog"
+                style="display: none;"
+                id="gmw-dialog-' . $widget['id'] . '"
                 title="' . esc_attr($widget['title']) . '">';
-                
+
        if ($widget['lightbox_header']) {
          $tmp = str_ireplace(array('{address}'), array($widget['address']), $widget['lightbox_header']);
          $out .= '<div class="gmw-header">' . wpautop(do_shortcode($tmp)) . '</div>';
@@ -566,7 +686,7 @@ class GMWP {
        }
        $out .= "</div>\n";
      } // foreach $widgets
-     
+
      // add CSS and JS in footer
      $js_vars['track_ga'] = $options['track_ga'];
      $js_vars['plugin_url'] = GMW_PLUGIN_URL;
@@ -625,7 +745,7 @@ class GMWP {
       wp_redirect(admin_url());
       exit;
     }
-    
+
     if ($_GET['notice'] == 'upgrade') {
       GMWP::set_options(array('dismiss_notice_upgrade2' => true));
     }
@@ -655,26 +775,26 @@ class GMWP {
     $notice = false;
 
     // license expire notice is always shown
-    if ((!$notice && GMWP::is_activated() && empty($options['dismiss_notice_license_expires']) && 
+    if ((!$notice && GMWP::is_activated() && empty($options['dismiss_notice_license_expires']) &&
         (strtotime($options['license_expires']) - time() < DAY_IN_SECONDS * 3)) ||
         (!$notice && empty($options['dismiss_notice_license_expires']) &&
         $options['license_expires'] < date('Y-m-d') && $options['license_active'] == true)) {
       add_action('admin_notices', array('GMWP', 'notice_license_expires'));
       $notice = true;
-    } elseif ((!$notice && GMWP::is_activated() && GMWP::is_plugin_admin_page('settings') && 
+    } elseif ((!$notice && GMWP::is_activated() && GMWP::is_plugin_admin_page('settings') &&
         (strtotime($options['license_expires']) - time() < DAY_IN_SECONDS * 3)) ||
-        (!$notice && GMWP::is_plugin_admin_page('settings') && 
+        (!$notice && GMWP::is_plugin_admin_page('settings') &&
         $options['license_expires'] < date('Y-m-d') && $options['license_active'] == true)) {
       add_action('admin_notices', array('GMWP', 'notice_license_expires'));
     } // show license expire notice
-    
+
     // API key notification is shown if there are active widgets and no key
-    if (empty($options['dismiss_notice_api_key']) && 
+    if (empty($options['dismiss_notice_api_key']) &&
         !GMWP::get_api_key('test') && GMWP::count_active_widgets() > 0) {
       add_action('admin_notices', array('GMWP', 'notice_api_key'));
       $notice = true;
     } // show api key notice
-    
+
     // rating notification is shown after 5 days if you have active widgets
     if (!$notice && empty($options['dismiss_notice_rate']) &&
         GMWP::count_active_widgets() > 0 &&
@@ -688,15 +808,15 @@ class GMWP {
   // display message if license will expire in 14 days or less
   static function notice_license_expires() {
     $options = GMWP::get_options();
-    
+
     $buy_url = admin_url('options-general.php?page=gmw_options&gmw_open_promo_dialog');
     $dismiss_url = add_query_arg(array('action' => 'gmw_dismiss_notice', 'notice' => 'license_expires', 'redirect' => urlencode($_SERVER['REQUEST_URI'])), admin_url('admin.php'));
-    
+
     $days = strtotime($options['license_expires'] . date(' G:i:m')) - time();
     $days = round($days / DAY_IN_SECONDS);
-    
+
     $cancel_text = __('I will pay the full price ($39) later', 'google-maps-widget');
-    
+
     echo '<div id="gmw_license_expires_notice" class="error notice"><p>';
     echo 'Your <b>Google Maps Widget</b> <b style="color: #d54e21;">PRO</b> trial ';
     if ($options['license_expires'] == date('Y-m-d')) {
@@ -719,7 +839,7 @@ class GMWP {
       $button_text = 'Buy PRO now to avoid problems with maps';
     } else {
       echo '<b>has expired</b>!';
-      echo ' Maps can no longer be edited and have stopped displaying on your site.';  
+      echo ' Maps can no longer be edited and have stopped displaying on your site.';
       echo '<br>If you have any questions please email <a href="mailto:gmw@webfactoryltd.com?subject=Trial%20support">support</a>. They will be happy to assist you.';
       $button_text = 'Buy PRO now to keep maps on your site';
       $cancel_text = '';
@@ -727,12 +847,12 @@ class GMWP {
 
     echo '<br><a data-target-screen="gmw_dialog_intro" href="' . esc_url($buy_url) . '" style="vertical-align: baseline; margin-top: 15px;" class="open_promo_dialog button-primary">' . $button_text . '</a>';
     if (0 && !GMWP::is_plugin_admin_page('settings')) {
-      echo '&nbsp;&nbsp;<a href="' . esc_url($dismiss_url) . '" class="">' . $cancel_text . '</a>';  
+      echo '&nbsp;&nbsp;<a href="' . esc_url($dismiss_url) . '" class="">' . $cancel_text . '</a>';
     }
     echo '</p></div>';
   } // notice_license_expires
-  
-  
+
+
   // display message to rate plugin
   static function notice_rate_plugin() {
     $rate_url = 'https://wordpress.org/support/view/plugin-reviews/google-maps-widget?rate=5#postform';
@@ -744,26 +864,26 @@ class GMWP {
     echo '&nbsp;&nbsp;<a href="' . esc_url($dismiss_url) . '">' . __('I already rated the plugin', 'google-maps-widget') . '</a>';
     echo '</p></div>';
   } // notice_rate_plugin
-  
-  
+
+
   // display message to enter API key
   static function notice_api_key() {
     if (GMWP::is_plugin_admin_page('settings')) {
       // display message to enter API key
       echo '<div id="gmw_api_key_notice" class="error notice"><p>';
       echo '<b>Important!</b> Google rules dictate that you have to register for a <b>free Google Maps API key</b>. ';
-      echo 'Please follow our <a href="http://www.gmapswidget.com/documentation/generate-google-maps-api-key/" target="_blank">short instructions</a> to get the key. If you don\'t configure the API key the maps will not work properly.';  
-      echo '</p></div>';      
+      echo 'Please follow our <a href="http://www.gmapswidget.com/documentation/generate-google-maps-api-key/" target="_blank">short instructions</a> to get the key. If you don\'t configure the API key the maps will not work properly.';
+      echo '</p></div>';
     } else {
       //return; // disabled to make things less crowded
       $dismiss_url = add_query_arg(array('action' => 'gmw_dismiss_notice', 'notice' => 'api_key', 'redirect' => urlencode($_SERVER['REQUEST_URI'])), admin_url('admin.php'));
-      
+
       echo '<div id="gmw_api_key_notice" class="error notice"><p>';
       echo '<b>Important!</b> New Google rules dictate that you have to register for a <b>free Google Maps API key</b>. ';
       echo 'Please open Google Maps Widget <a href="' . admin_url('options-general.php?page=gmw_options') . '" title="Google Maps Widget settings">settings</a> and follow instructions on how to obtain it. If you don\'t configure the API key the maps will stop working.';
       echo '<br><a href="' . admin_url('options-general.php?page=gmw_options') . '" style="vertical-align: baseline; margin-top: 15px;" class="button-primary">' . __('Configure the API key', 'google-maps-widget') . '</a>';
       //echo '&nbsp;&nbsp;<a href="' . esc_url($dismiss_url) . '">' . __('Dismiss notice', 'google-maps-widget') . '</a>';
-      echo '</p></div>';  
+      echo '</p></div>';
     }
   } // notice_api_key
 
@@ -791,7 +911,7 @@ class GMWP {
   // enqueue CSS and JS scripts in admin
   static function admin_enqueue_scripts() {
     $options = GMWP::get_options();
-    
+
     $js_localize = array('activate_ok' => __('Superb! Plugin has been activated.', 'google-maps-widget'),
                          'activate_ok_refresh' => __("Superb! Plugin has been activated.\nThe page will reload.", 'google-maps-widget'),
                          'dialog_map_title' => __('Pick an address by drag &amp; dropping the pin', 'google-maps-widget'),
@@ -825,7 +945,7 @@ class GMWP {
       wp_enqueue_script('jquery-ui-sortable');
       wp_enqueue_script('wp-color-picker');
       wp_enqueue_script('wp-pointer');
-      wp_enqueue_script('gmw-gmap', '//maps.google.com/maps/api/js?key=' . GMWP::get_api_key('fallback'), array(), GMWP::$version, true);  
+      wp_enqueue_script('gmw-gmap', '//maps.google.com/maps/api/js?key=' . GMWP::get_api_key('fallback'), array(), GMWP::$version, true);
       wp_enqueue_script('gmw-jquery-plugins', GMW_PLUGIN_URL . 'js/gmwp-jquery-plugins.js', array('jquery'), GMWP::$version, true);
       wp_enqueue_script('gmw-admin', GMW_PLUGIN_URL . 'js/gmwp-admin.js', array('jquery'), GMWP::$version, true);
 
@@ -836,7 +956,7 @@ class GMWP {
       wp_enqueue_style('gmw-admin', GMW_PLUGIN_URL . 'css/gmwp-admin.css', array(), GMWP::$version);
 
       wp_localize_script('gmw-admin', 'gmw', $js_localize);
-      
+
       // fix for agressive plugins
       wp_dequeue_style('uiStyleSheet');
       wp_dequeue_style('wpcufpnAdmin' );
@@ -853,7 +973,7 @@ class GMWP {
       wp_dequeue_style('facebook-tip-plugin-css');
       wp_dequeue_style('facebook-member-plugin-css');
     } // if
-    
+
     if (GMWP::is_plugin_admin_page('plugins')) {
       wp_enqueue_script('gmw-admin-plugins', GMW_PLUGIN_URL . 'js/gmwp-admin-plugins.js', array('jquery'), GMWP::$version, true);
       wp_localize_script('gmw-admin-plugins', 'gmw', $js_localize);
@@ -884,10 +1004,10 @@ class GMWP {
   // check if license key is valid and not expired
   static function is_activated($license_type = false) {
     $options = GMWP::get_options();
-    
-    if (isset($options['license_active']) && $options['license_active'] === true && 
+
+    if (isset($options['license_active']) && $options['license_active'] === true &&
         isset($options['license_expires']) && $options['license_expires'] >= date('Y-m-d')) {
-          
+
       if (mt_rand(0, 1000) > 998 && is_admin()) {
         $tmp = GMWP::validate_activation_code($options['activation_code']);
         if ($tmp['success']) {
@@ -895,9 +1015,9 @@ class GMWP {
           $update['license_expires'] = $tmp['license_expires'];
           $update['license_active'] = $tmp['license_active'];
           GMWP::set_options($update);
-        }  
-      } // random license revalidation    
-      
+        }
+      } // random license revalidation
+
       // check for specific license type?
       if (!empty($license_type)) {
         if (strtolower(trim($license_type)) == strtolower($options['license_type'])) {
@@ -906,7 +1026,7 @@ class GMWP {
           return false;
         }
       } // check specific license type
-      
+
       return true;
     } else {
       return false;
@@ -919,7 +1039,7 @@ class GMWP {
     $out = '';
     $options = GMWP::get_options();
     $promo_delta = 3*60*60;
-    
+
     if (GMWP::is_plugin_admin_page('widgets') || GMWP::is_plugin_admin_page('settings')) {
       $current_user = wp_get_current_user();
       if (empty($current_user->user_firstname)) {
@@ -927,9 +1047,9 @@ class GMWP {
       } else {
         $name = $current_user->user_firstname;
       }
-    
+
       $out .= '<div id="gmw_promo_dialog" style="display: none;">';
-      
+
       $out .= '<div id="gmw_dialog_intro" class="gmw_promo_dialog_screen">
                <div class="content">
                   <div class="header"><p><a href="#" class="gmw_goto_pro">Learn more</a> about <span class="gmw-pro">PRO</span> features or <a href="#" class="gmw_goto_activation">enter your license key</a></p>';
@@ -937,16 +1057,16 @@ class GMWP {
         $out .= '<div class="gmw-discount">We\'ve prepared a special <b>25% trial discount</b> for you available <b>only while the trial is active</b>. Discount has been applied on the unlimited license. Be quick &amp; use the buy button below.</div>';
       }
       $out .= '</div>'; // header
-      
+
       $out .= '<div class="gmw-promo-box gmw-promo-box-agency gmw_goto_activation">
                <div class="gmw-promo-icon"><img src="' . GMW_PLUGIN_URL . 'images/icon-agency.png" alt="Unlimited Agency Lifetime License" title="Unlimited Agency Lifetime License"></div>
                <div class="gmw-promo-description"><h3>Unlimited Agency License</h3><br>
                <span>Unlimited Client &amp; Personal Sites<br>Lifetime Support + Lifetime Upgrades</span></div>';
-      
+
       $out .= '<div class="gmw-promo-button"><a href="http://www.gmapswidget.com/buy/?p=pro-agency&r=GMW+v' . GMWP::$version . '" data-noprevent="1" target="_blank">BUY $99</a></div>';
-      
+
       $out .= '</div>';
-               
+
       $out .= '<div class="gmw-promo-box gmw-promo-box-lifetime gmw_goto_activation gmw-promo-box-hover">
                <div class="gmw-promo-icon"><img src="' . GMW_PLUGIN_URL . 'images/icon-unlimited.png" alt="Unlimited Lifetime License" title="Unlimited Lifetime License"></div>
                <div class="gmw-promo-description"><h3>Unlimited Personal License</h3><br>
@@ -973,7 +1093,7 @@ class GMWP {
       }
       //$out .= '<p class="gmw-footer-intro">Already have a license key? <a href="#" class="gmw_goto_activation">Enter it here</a></p>';
       $out .= '</div></div>'; // dialog intro
-      
+
       $out .= '<div id="gmw_dialog_activate" style="display: none;" class="gmw_promo_dialog_screen">
                  <div class="content">';
       $out .= '<p class="input_row">
@@ -991,7 +1111,7 @@ class GMWP {
                  </ul>
                </div>';
       $out .= '</div>'; // activate screen
-      
+
       $out .= '<div id="gmw_dialog_pro_features" style="display: none;" class="gmw_promo_dialog_screen">
                  <div class="content">';
       $out .= '<h4>See how <span class="gmw-pro-red">PRO</span> features can make your life easier!</h4>';
@@ -1029,7 +1149,7 @@ class GMWP {
                Or <a href="#" class="gmw_goto_activation">enter the license key</a> if you already have it.</p>';
       $out .= '</div>';
       $out .= '</div>'; // pro features screen
-      
+
       $out .= '<div id="gmw_dialog_trial" style="display: none;" class="gmw_promo_dialog_screen">
              <div class="content">
              <h3>Fill out the form and get your free trial started <b>INSTANTLY</b>!</h3>';
@@ -1053,31 +1173,31 @@ class GMWP {
                     </ul>
                   </div>';
       $out .= '</div>'; // trial screen
-      
+
       $out .= '</div>'; // dialog
     } // promo dialog
-    
+
     // address picker and pins dialog
     if (GMWP::is_plugin_admin_page('widgets')) {
       $out .= '<div id="gmw_map_dialog" style="display: none;">';
       $out .= '<div id="gmw_map_canvas"></div><hr>';
       $out .= '<div id="gmw_map_dialog_footer">';
-      
+
       // current coordinates
       $out .= '<div class="gmw_dialog_current_coordinates">';
         $out .= 'Current coordinates: <input type="text" id="gmw_map_pin_coordinates" class="regular-text"> <a href="#" class="button-secondary gmw-move-pin" data-location-holder="gmw_map_pin_coordinates">Go</a><br>';
         $out .= '<a href="#" class="button-secondary gmw_close_save_map_dialog" data-location-holder="gmw_map_pin_coordinates">Use selected coordinates</a>';
       $out .= '</div>';
-      
+
       // closest matching address
       $out .= '<div class="gmw_closest_matching_address">';
         $out .= 'Closest matching address: <input type="text" id="gmw_map_pin_address" class="regular-text"> <a href="#" class="button-secondary gmw-move-pin" data-location-holder="gmw_map_pin_address">Go</a><br>';
         $out .= '<a href="#" class="button-primary gmw_close_save_map_dialog" data-location-holder="gmw_map_pin_address">Use selected address</a>';
       $out .= '</div>';
-      
+
       $out .= '</div>'; // footer
       $out .= '</div>'; // dialog
-      
+
       // pins
       $out .= '<div id="gmw_pins_dialog" style="display: none;">';
       $out .= '<div id="search_header"><input type="search" id="pins_search" name="pins_search" placeholder="Search pins by name, eg hotel"><select id="pins_set"><option value="">All icon sets</option><option value="big/">Big icon set</option><option value="restaurants-hotels/">White restaurants & hotels icons</option><option value="white-stores/">White stores icons</option><option value="default/">Default icon set</option></select></div>';
@@ -1088,7 +1208,7 @@ class GMWP {
         if (!empty($matches[1])) {
           $folder = $matches[1];
         } else {
-          $folder = 'default';          
+          $folder = 'default';
         }
         $filename = basename($filename);
         $name = str_replace(array('.png', '00_', '-', '_'), array('', '', ' ', ' '), $filename);
@@ -1098,7 +1218,7 @@ class GMWP {
       }
       $out .= '<p><i>Default icon set is created by Nicolas Mollet under the Creative Commons Attribution-Share Alike 3.0 Unported license. You can find them on the <a class="skip-search" href="https://mapicons.mapsmarker.com/" target="_blank">Maps Icons Collection</a>.</i></p>';
       $out .= '</div>';
-      $out .= '</div>'; // dialog  
+      $out .= '</div>'; // dialog
     } // address picker and pins dialog if activated
 
     echo $out;
@@ -1110,21 +1230,22 @@ class GMWP {
     if (!current_user_can('manage_options')) {
       wp_die('Cheating? You don\'t have the right to access this page.', 'Google Maps Widget', array('back_link' => true));
     }
-    
+
     $options = GMWP::get_options();
 
     echo '<div class="wrap gmw-options">';
     echo '<h1><img alt="' . __('Google Maps Widget PRO', 'google-maps-widget') . '" title="' . __('Google Maps Widget PRO', 'google-maps-widget') . '" height="55" src="' . GMW_PLUGIN_URL . 'images/gmw-logo-pro.png"></h1>';
-    
+
     echo '<form method="post" action="options.php" enctype="multipart/form-data">';
     settings_fields(GMWP::$options);
-    
+
     echo '<div id="gmw-settings-tabs"><ul>';
     echo '<li><a href="#gmw-settings">' . __('Settings', 'google-maps-widget') . '</a></li>';
-    echo '<li><a href="#gmw-export">' . __('Export &amp; Import', 'google-maps-widget') . '</a></li>';
+    echo '<li><a href="#gmw-import-pins">' . __('Import Pins', 'google-maps-widget') . '</a></li>';
+    echo '<li><a href="#gmw-export">' . __('Export &amp; Import Widgets', 'google-maps-widget') . '</a></li>';
     echo '<li><a href="#gmw-license">' . __('License', 'google-maps-widget') . '</a></li>';
     echo '</ul>';
-    
+
     echo '<div id="gmw-settings" style="display: none;">';
     echo '<table class="form-table">';
     echo '<tr>
@@ -1171,10 +1292,10 @@ class GMWP {
           <td><input name="' . GMWP::$options . '[disable_sidebar]" type="checkbox" id="disable_sidebar" value="1"' . checked('1', $options['disable_sidebar'], false) . '>
           <span class="description">Hidden sidebar helps you to build maps that are displayed with shortcodes. If it bothers you in the admin, disable it. Default: unchecked.</span></td></tr>';
     echo '</table>';
-    
+
     echo get_submit_button(__('Save Settings', 'google-maps-widget'));
     echo '</div>'; // settings tab
-    
+
     echo '<div id="gmw-export" style="display: none;">';
     echo '<table class="form-table">';
     echo '<tr>
@@ -1184,14 +1305,14 @@ class GMWP {
           </tr>';
     echo '<tr>
           <th scope="row"><label for="">' . __('Import widgets', 'google-maps-widget') . '</label></th>
-          <td><input type="file" name="gmw_widgets_import" id="gmw_widgets_import" accept=".txt"> 
+          <td><input type="file" name="gmw_widgets_import" id="gmw_widgets_import" accept=".txt">
           <input type="submit" name="submit-import" id="submit-import" class="button button-secondary button-large" value="Import widgets">';
     echo '<p class="description">Only use TXT export files generated by Google Maps Widget.<br>
           Existing GMW widgets will not be overwritten nor any other widgets touched. If you renamed a sidebar or old one no longer exists widgets will be placed in the inactive widgets area.</p></td>
           </tr>';
-    echo '</table>';  
-    echo '</div>'; // export/import tab
-    
+    echo '</table>';
+    echo '</div>'; // export/import widgets tab
+
     echo '<div id="gmw-license" style="display: none;">';
     echo '<table class="form-table">';
     echo '<tr>
@@ -1199,7 +1320,7 @@ class GMWP {
           <td><input class="regular-text" name="' . GMWP::$options . '[activation_code]" type="text" id="activation_code" value="' . esc_attr($options['activation_code']) . '" placeholder="12345678-12345678-12345678-12345678">
           <p class="description">License key can be found in the confirmation email you received after purchasing.';
     if (!GMWP::is_activated()) {
-      echo '<br>If you don\'t have a license - <a href="#" data-target-screen="gmw_dialog_intro" class="open_promo_dialog">purchase one now</a>';  
+      echo '<br>If you don\'t have a license - <a href="#" data-target-screen="gmw_dialog_intro" class="open_promo_dialog">purchase one now</a>';
     }
     echo '</p></td></tr>';
     if (GMWP::is_activated()) {
@@ -1225,7 +1346,7 @@ class GMWP {
       }
       echo '<br>
           Valid ' . $valid . '</td>
-          </tr>';  
+          </tr>';
     } else {
       echo '<tr>
           <th scope="row"><label for="">' . __('License Key Status', 'google-maps-widget') . '</label></th>
@@ -1236,15 +1357,98 @@ class GMWP {
     echo get_submit_button(__('Save and Validate License Key', 'google-maps-widget'), 'primary large', 'submit-license', true, array());
     echo '</div>'; // license tab
 
+    $widgets = array(array('val' => '', 'label' => '- choose a widget to import pins to -'));
+    $instances = get_option('widget_googlemapswidget', array());
+    foreach ($instances as $instance_id => $instance_data) {
+      if (is_numeric($instance_id)) {
+        if(empty($instance_data['title'])) {
+          $title = 'Widget #' . $instance_id;
+        } else {
+          $title = $instance_data['title'];
+        }
+        $widgets[] = array('val' => $instance_id, 'label' => $title);
+      }
+    } // foreach
+
+    echo '<div id="gmw-import-pins" style="display: none;">';
+    if (!self::get_api_key('test')) {
+      echo '<p>Please set your API key. Import can\'t work without it.</p>';
+    } elseif (get_transient('pins_import_tmp')) {
+      echo '<tr><td colspan="2">';
+      $data = get_transient('pins_import_tmp');
+      echo '<strong>Import data preview. Please verify the data integrity and clik "Finalize Import" if everything looks good.</strong><br><br>';
+      echo '<table id="import-preview">';
+      echo '<tr>';
+      echo '<td>Pin #</td>';
+      echo '<td>Address</td>';
+      echo '<td>Show on thumb/interactive</td>';
+      echo '<td>Thumb pin color</td>';
+      echo '<td>Interactive pin</td>';
+      echo '<td>On pin click</td>';
+      echo '<td>Description</td>';
+      echo '<td>URL</td>';
+      echo '<td>Group Name</td>';
+      echo '</tr>';
+
+      $i = 1;
+      foreach ($data as $row) {
+        echo '<tr>';
+        echo '<td>' . $i . '</td>';
+        echo '<td>' . $row[0] . '</td>';
+        echo '<td>' . $row[1] . '</td>';
+        echo '<td>' . $row[2] . '</td>';
+        echo '<td>' . $row[3] . '</td>';
+        echo '<td>' . $row[4] . '</td>';
+        echo '<td>' . $row[5] . '</td>';
+        echo '<td>' . $row[6] . '</td>';
+        echo '<td>' . $row[7] . '</td>';
+        echo '</tr>';
+        $i++;
+      } // foreach
+
+      echo '</table>';
+
+      echo '</td></tr>';
+      echo '<tr>
+          <th scope="row"><br><br><br><input type="submit" name="submit-import-pins-final" id="submit-import-pins-final" class="button button-primary button-large" value="Finalize Import"> &nbsp;&nbsp; <input type="submit" name="submit-import-pins-cancel" id="submit-import-pins" class="button button-secondary button-large" value="Cancel"></th>';
+      echo '</tr>';
+
+    } else {
+      echo '<table class="form-table">';
+      echo '<tr>
+            <th scope="row"><label for="widget_id">' . __('Google Maps Widget', 'google-maps-widget') . '</label></th>
+            <td><select name="' . GMWP::$options . '[widget_id]" id="widget_id">';
+      self::create_select_options($widgets, @$_GET['widget_id']);
+      echo '</select><br><span class="description">Choose a widget you want to import pins to. Any existing pins will be overwritten with the new pins. Other widget options will not be altered in any way.</span></td></tr>';
+
+      echo '<tr>
+            <th scope="row"><label for="pins_txt">' . __('Pins, copy/paste', 'google-maps-widget') . '</label></th>';
+      echo '<td><textarea style="width: 500px;" rows="3" name="' . GMWP::$options . '[pins_txt]" id="pins_txt">';
+      echo '</textarea><br><span class="description">Data has to be formatted in a CSV fashion. One pin per line, individual fields double quoted and separated by a comma. All fields have to be included.<br>
+      Please refer to the <a href="https://www.gmapswidget.com/documentation/importing-pins/" target="_blank">detailed documentation article</a> or grab the <a href="https://www.gmapswidget.com/wp-content/uploads/2018/02/sample-pins-import.csv" target="_blank">sample import file and modify it.</span></td></tr>';
+
+      echo '<tr>
+            <th scope="row"><label for="pins_file">' . __('Pins, upload file', 'google-maps-widget') . '</label></th>';
+      echo '<td><input type="file" name="pins_file" id="pins_file">';
+      echo '<br><span class="description">See rules noted for the field above.</span></td></tr>';
+
+      echo '<tr>
+          <th scope="row" colspan="2"><input type="submit" name="submit-import-pins" id="submit-import-pins" class="button button-primary button-large" value="Import pins"><br><br><i style="font-weight: normal;">No data will be written to the widget until you confirm it in step #2.<br>Importing can take up to 2 seconds per pin as the addresses have to be GEO coded. Please be patient.</i></th>';
+      echo '</tr>';
+    } // step zero
+
+    echo '</table>';
+    echo '</div>'; // import pins tab
+
     echo '</form>';
     echo '</div>'; // wrap
   } // settings_screen
-  
-  
+
+
   // send user's name & email and get trial license key
   static function get_trial_ajax() {
     check_ajax_referer('gmw_get_trial');
-    
+
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     if (defined('WPLANG')) {
@@ -1252,7 +1456,7 @@ class GMWP {
     } else {
       $lang = 'en';
     }
-    
+
     $request_params = array('sslverify' => false, 'timeout' => 15, 'redirection' => 2);
     $request_args = array('action' => 'get_trial',
 						  'name' => $name,
@@ -1265,7 +1469,7 @@ class GMWP {
 
     $url = add_query_arg($request_args, GMWP::$licensing_servers[0]);
     $response = wp_remote_get(esc_url_raw($url), $request_params);
-    
+
     if (is_wp_error($response) || !wp_remote_retrieve_body($response)) {
       $url = add_query_arg($request_args, GMWP::$licensing_servers[1]);
       $response = wp_remote_get(esc_url_raw($url), $request_params);
@@ -1292,16 +1496,16 @@ class GMWP {
   // check activation code and save if valid
   static function activate_license_key_ajax() {
     check_ajax_referer('gmw_activate_license_key');
-    
+
     $code = str_replace(' ', '', $_POST['code']);
-    
+
     if (strlen($code) < 6 || strlen($code) > 50) {
-      wp_send_json_error(__('Please double-check the license key. The format is not valid.', 'google-maps-widget'));  
+      wp_send_json_error(__('Please double-check the license key. The format is not valid.', 'google-maps-widget'));
     }
 
     $tmp = GMWP::validate_activation_code($code);
     if ($tmp['success']) {
-      GMWP::set_options(array('activation_code' => $code, 'license_active' => $tmp['license_active'], 'license_type' => $tmp['license_type'], 'license_expires' => $tmp['license_expires']));  
+      GMWP::set_options(array('activation_code' => $code, 'license_active' => $tmp['license_active'], 'license_type' => $tmp['license_type'], 'license_expires' => $tmp['license_expires']));
     }
     if ($tmp['license_active'] && $tmp['success']) {
       wp_send_json_success();
@@ -1309,18 +1513,18 @@ class GMWP {
       wp_send_json_error($tmp['error']);
     }
   } // activate_license_key_ajax
-  
-  
+
+
   // get info on new plugin version if one exists
   static function update_filter($current) {
     if (!GMWP::is_activated()) {
       return $current;
     }
-    
+
     static $response = false;
     $options = GMWP::get_options();
     $plugin = plugin_basename(__FILE__);
-    
+
     if(empty($response) || is_wp_error($response)) {
       $request_params = array('sslverify' => false, 'timeout' => 15, 'redirection' => 2);
       $request_args = array('action' => 'update_info',
@@ -1329,10 +1533,10 @@ class GMWP {
                             'version' => GMWP::$version,
                             'code' => $options['activation_code'],
                             'site' => get_home_url());
-      
+
       $url = add_query_arg($request_args, GMWP::$licensing_servers[0]);
       $response = wp_remote_get(esc_url_raw($url), $request_params);
-    
+
       if (is_wp_error($response)) {
         $url = add_query_arg($request_args, GMWP::$licensing_servers[1]);
         $response = wp_remote_get(esc_url_raw($url), $request_params);
@@ -1342,20 +1546,20 @@ class GMWP {
     if (!is_wp_error($response) && wp_remote_retrieve_body($response)) {
       $data = json_decode(wp_remote_retrieve_body($response));
       if (empty($current)) {
-        $current = new stdClass(); 
+        $current = new stdClass();
       }
       if (empty($current->response)) {
         $current->response = array();
-      } 
+      }
       if (!empty($data) && is_object($data)) {
         $current->response[$plugin] = $data;
-      } 
+      }
     }
 
     return $current;
   } // update_filter
-  
-  
+
+
   // get plugin info for lightbox
   static function update_details($result, $action, $args) {
     static $response = false;
@@ -1365,7 +1569,7 @@ class GMWP {
     if ($action != 'plugin_information' || empty($args->slug) || ($args->slug != $plugin)) {
       return $result;
     }
-    
+
     if(empty($response) || is_wp_error($response)) {
       $request_params = array('sslverify' => false, 'timeout' => 15, 'redirection' => 2);
       $request_args = array('action' => 'plugin_information',
@@ -1375,7 +1579,7 @@ class GMWP {
                             'version' => GMWP::$version,
                             'code' => $options['activation_code'],
                             'site' => get_home_url());
-      
+
       $url = add_query_arg($request_args, GMWP::$licensing_servers[0]);
       $response = wp_remote_get(esc_url_raw($url), $request_params);
 
@@ -1410,17 +1614,17 @@ class GMWP {
 	                      'code' => $code,
 						  'version' => GMWP::$version,
 						  'site' => get_home_url());
-    
+
     $out = array('success' => false, 'license_active' => false, 'activation_code' => $code, 'error' => '', 'license_type' => '', 'license_expires' => '1900-01-01');
 
     $url = add_query_arg($request_args, GMWP::$licensing_servers[0]);
     $response = wp_remote_get(esc_url_raw($url), $request_params);
-    
+
     if (is_wp_error($response) || !wp_remote_retrieve_body($response)) {
       $url = add_query_arg($request_args, GMWP::$licensing_servers[1]);
       $response = wp_remote_get(esc_url_raw($url), $request_params);
     }
-    
+
     if (!is_wp_error($response) && wp_remote_retrieve_body($response)) {
       $result = wp_remote_retrieve_body($response);
       $result = json_decode($result, true);
@@ -1444,17 +1648,17 @@ class GMWP {
     if (empty($field_name_cnt)) {
       $field_name_cnt = 0;
     }
-    
+
     if ($increment) {
       $field_name_cnt++;
     }
-    
+
     $name = str_replace(array('][', '[', ']'), array('_', '_', $field_name_cnt), $name);
-    
+
     return $name;
   } // field_name_to_id
-  
-  
+
+
   // helper function for creating dropdowns
   static function create_select_options($options, $selected = null, $output = true) {
     $out = "\n";
@@ -1465,7 +1669,7 @@ class GMWP {
 
     foreach ($options as $tmp) {
       $data = '';
-      
+
       if (isset($tmp['disabled'])) {
         $data .= ' disabled="disabled" ';
       }
@@ -1503,9 +1707,9 @@ class GMWP {
   // converts color from human readable to hex
   static function convert_color($color) {
     $color_codes = array('black'  => '#000000', 'white'  => '#ffffff',
-                         'brown'  => '#a52a2a', 'green'  => '#00ff00', 
-                         'purple' => '#800080', 'yellow' => '#ffff00', 
-                         'blue'   => '#0000ff', 'gray'   => '#808080', 
+                         'brown'  => '#a52a2a', 'green'  => '#00ff00',
+                         'purple' => '#800080', 'yellow' => '#ffff00',
+                         'blue'   => '#0000ff', 'gray'   => '#808080',
                          'orange' => '#ffa500', 'red'    => '#ff0000');
 
     $color = strtolower(trim($color));
@@ -1516,8 +1720,8 @@ class GMWP {
       return $color_codes[$color];
     }
   } // convert_color
-  
-  
+
+
   // count active GMWP widgets in sidebars
   static function count_active_widgets() {
     $count = 0;
@@ -1566,7 +1770,7 @@ class GMWP {
       $widget_args = $widgets[$id];
       $widget_instance['widget_id'] = 'googlemapswidget-' . $id;
       $widget_instance['widget_name'] = 'Google Maps Widget';
-      
+
       if (!empty($atts['thumb_width']) && !empty($atts['thumb_height'])) {
         $widget_args['thumb_width'] = min(640, max(50, (int) $atts['thumb_width']));
         $widget_args['thumb_height'] = min(640, max(50, (int) $atts['thumb_height']));
@@ -1587,7 +1791,7 @@ class GMWP {
   // activate doesn't get fired on upgrades so we have to compensate
   public static function maybe_upgrade() {
     $options = GMWP::get_options();
-    
+
     if (!isset($options['first_version']) || !isset($options['first_install'])) {
       $update = array();
       $update['first_version'] = GMWP::$version;

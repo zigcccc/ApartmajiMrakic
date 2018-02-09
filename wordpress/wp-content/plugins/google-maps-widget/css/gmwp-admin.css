@@ -1,6 +1,6 @@
 /*
  * Google Maps Widget
- * (c) Web factory Ltd, 2012 - 2017
+ * (c) Web factory Ltd, 2012 - 2018
  */
 
 @import url(//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light&amp;lang=en);
@@ -32,6 +32,7 @@
   font-weight: bold;
   font-size: 13px;
   padding: 0 20px;
+  text-shadow: none;
 }
 
 .wrap.gmw-options .ui-tabs li.ui-state-hover a {
@@ -41,7 +42,8 @@
 .gmw-label {
   width: 115px;
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: top;
+  line-height: 26px;
 }
 
 .control-panel-widgets label.label-holder {
@@ -305,7 +307,7 @@ a.button.button-secondary.gmw_spinner, a.button.button-primary.gmw_spinner {
 }
 
 .gmw_disabled {
-  pointer-events: none;  
+  pointer-events: none;
   opacity: .65;
   filter: alpha(opacity=65);
 }
@@ -337,13 +339,12 @@ a.button.button-secondary.gmw_spinner, a.button.button-primary.gmw_spinner {
 }
 
 
-#gmw-info h4 {
+.gmw-tabs h4 {
   margin: 25px 0 5px 0;
-  text-transform: uppercase;
   font-weight: bold;
 }
 
-#gmw-info p {
+.gmw-tabs p {
   margin-top: 5px;
 }
 
@@ -506,7 +507,7 @@ ul .ui-state-hover a {
 #customize-theme-controls .ui-tabs .ui-tabs-nav li.ui-tabs-active {
   border-bottom: 3px solid white !important;
 }
-#customize-theme-controls .ui-tabs .ui-tabs-panel { 
+#customize-theme-controls .ui-tabs .ui-tabs-panel {
   min-width: 440px;
 }
 #available-widgets-list [class*=googlemapswidget] .widget-title:before{
@@ -539,7 +540,7 @@ ul .ui-state-hover a {
 }
 
 .gmw-content-box i {
-  color: #fff;  
+  color: #fff;
 }
 
 .gmw-content-box-alternate h3,
@@ -777,7 +778,7 @@ ul .ui-state-hover a {
 }
 
 #gmw_dialog_trial .footer {
-  padding: 15px 135px 50px 135px; 
+  padding: 15px 135px 50px 135px;
 }
 
 
@@ -807,7 +808,7 @@ ul .ui-state-hover a {
 }
 
 .input-address-group {
-  width: 100%;
+  width: 99%;
   position: relative;
 }
 
@@ -864,7 +865,7 @@ ul .ui-state-hover a {
   vertical-align: top;
   margin: 0;
   padding: 0;
-} 
+}
 
 #gmw_dialog_pro_features .list-right {
   width: 33%;
@@ -1010,11 +1011,11 @@ ul .ui-state-hover a {
 }
 
 .gmw-promo-box-lifetime {
-  background-color: #1fbc61;  
+  background-color: #1fbc61;
 }
 
 .gmw-promo-box-yearly {
-  background-color: #0085ba;  
+  background-color: #0085ba;
 }
 
 .gmw-promo-box-yearly .gmw-promo-button {
@@ -1022,7 +1023,7 @@ ul .ui-state-hover a {
 }
 
 .gmw-promo-box-trial {
-  background-color: #5fb5d8;  
+  background-color: #5fb5d8;
 }
 
 #gmw_dialog_intro .header {
@@ -1119,12 +1120,31 @@ table.disabled, h3.disabled {
 }
 
 .gmw-promo-box-agency {
-  background-color: #3ba266;  
+  background-color: #3ba266;
 }
 
 .gmw-promo-icon img {
     display: inline-block;
 }
+
+#import-preview {
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+#import-preview td {
+  border: none;
+  padding: 10px;
+  margin: 0;
+  border-bottom: 1px solid #333;
+}
+
+#import-preview tr:first-child td {
+  font-weight: 600;
+}
+
 
 /* UI accordion */
 .ui-accordion .ui-accordion-header {

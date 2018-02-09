@@ -49,6 +49,7 @@ class GoogleMapsWidget extends WP_Widget {
                            'lightbox_map_type_multiple' => 'roadmap',
                            'lightbox_zoom' => '13',
                            'lightbox_clustering' => '0',
+                           'lightbox_filtering' => '0',
                            'lightbox_feature' => array('overlay_close'),
                            'lightbox_skin' => 'light',
                            'lightbox_lang' => 'en',
@@ -59,7 +60,7 @@ class GoogleMapsWidget extends WP_Widget {
                            'lightbox_lock' => array(),
                            'lightbox_color_scheme' => 'default',
                            'lightbox_color_scheme_custom' => '',
-                           'pins' => array(array('address' => 'New York City, NY, USA', 'thumb_pin_color' => '#FF0000', 'show_on' => '3', 'interactive_pin_img' => 'default/00_default.png', 'interactive_pin_click' => '1', 'description' => ''), array('address' => 'Jersey City, NJ, USA', 'thumb_pin_color' => '#0000FF', 'show_on' => '3', 'description' => '', 'interactive_pin_click' => '1', 'interactive_pin_img' => 'default/00_default.png')));
+                           'pins' => array(array('address' => 'New York City, NY, USA', 'thumb_pin_color' => '#FF0000', 'show_on' => '3', 'interactive_pin_img' => 'default/00_default.png', 'interactive_pin_click' => '1', 'description' => '', 'group' => ''), array('address' => 'Jersey City, NJ, USA', 'thumb_pin_color' => '#0000FF', 'show_on' => '3', 'description' => '', 'interactive_pin_click' => '1', 'interactive_pin_img' => 'default/00_default.png', 'group' => '')));
 
 
   // constructor - define the widget
@@ -86,7 +87,7 @@ class GoogleMapsWidget extends WP_Widget {
 
     $lightbox_map_types = array(array('val' => 'roadmap', 'label' => __('Road (default)', 'google-maps-widget')),
                                 array('val' => 'satellite', 'label' => __('Satellite', 'google-maps-widget')));
-  
+
     $lightbox_modes = array(array('val' => 'directions', 'label' => __('Directions', 'google-maps-widget')),
                             array('val' => 'place', 'label' => __('Place (default)', 'google-maps-widget')),
                             array('val' => 'search', 'label' => __('Search', 'google-maps-widget')),
@@ -119,11 +120,14 @@ class GoogleMapsWidget extends WP_Widget {
 
     $lightbox_sizes = array(array('val' => '0', 'label' => __('Custom size (default)', 'google-maps-widget')),
                             array('val' => '1', 'label' => __('Fullscreen', 'google-maps-widget')));
-    
+
     $lightbox_clustering_options = array(array('val' => '0', 'label' => __('Disabled (default)', 'google-maps-widget')),
                                          array('val' => '20', 'label' => __('Small cluster radius', 'google-maps-widget')),
                                          array('val' => '100', 'label' => __('Medium cluster radius', 'google-maps-widget')),
                                          array('val' => '220', 'label' => __('Large cluster radius', 'google-maps-widget')));
+
+    $lightbox_filtering_options = array(array('val' => '0', 'label' => __('Disabled (default)', 'google-maps-widget')),
+                                        array('val' => '1', 'label' => __('Enabled', 'google-maps-widget')));
 
     $lightbox_skins = array(array('val' => 'noimage-blue', 'label' => __('Blue', 'google-maps-widget')),
                             array('val' => 'sketchtoon', 'label' => __('Cartoonish', 'google-maps-widget')),
@@ -157,7 +161,7 @@ class GoogleMapsWidget extends WP_Widget {
                               array('val' => 'custom_blank', 'label' => __('Custom URL in a new window', 'google-maps-widget')),
                               array('val' => 'interactive', 'label' => __('Skip thumbnail map, immediately show interactive one', 'google-maps-widget')),
                               array('val' => 'nolink', 'label' => __('Disable link', 'google-maps-widget')));
-    
+
     $thumb_color_schemes = array(array('val' => 'apple', 'label' => __('Apple', 'google-maps-widget')),
                                  array('val' => 'blue', 'label' => __('Blue', 'google-maps-widget')),
                                  array('val' => 'bright', 'label' => __('Bright', 'google-maps-widget')),
@@ -173,7 +177,7 @@ class GoogleMapsWidget extends WP_Widget {
                                  array('val' => 'new', 'label' => __('Refreshed by Google', 'google-maps-widget')),
                                  array('val' => 'ultra_light', 'label' => __('Ultra Light', 'google-maps-widget')),
                                  array('val' => 'custom', 'label' => __('Custom - import you own scheme', 'google-maps-widget')));
-   
+
     $lightbox_color_schemes = array(array('val' => 'apple', 'label' => __('Apple', 'google-maps-widget')),
                                     array('val' => 'blue', 'label' => __('Blue', 'google-maps-widget')),
                                     array('val' => 'bright', 'label' => __('Bright', 'google-maps-widget')),
@@ -188,7 +192,7 @@ class GoogleMapsWidget extends WP_Widget {
                                     array('val' => 'paper', 'label' => __('Paper', 'google-maps-widget')),
                                     array('val' => 'ultra_light', 'label' => __('Ultra Light', 'google-maps-widget')),
                                     array('val' => 'custom', 'label' => __('Custom - import you own scheme', 'google-maps-widget')));
-    
+
     $thumb_formats = array(array('val' => 'png', 'label' => __('PNG 8-bit (default)', 'google-maps-widget')),
                            array('val' => 'png32', 'label' => __('PNG 32-bit', 'google-maps-widget')),
                            array('val' => 'gif', 'label' => __('GIF', 'google-maps-widget')),
@@ -260,16 +264,16 @@ class GoogleMapsWidget extends WP_Widget {
     $lightbox_units = array(array('val' => 'auto', 'label' => __('Detect automatically', 'google-maps-widget')),
                             array('val' => 'imperial', 'label' => __('Imperial', 'google-maps-widget')),
                             array('val' => 'metric', 'label' => __('Metric', 'google-maps-widget')));
-    
+
     $show_on_options = array(array('val' => '3', 'label' => __('Thumbnail and interactive map', 'google-maps-widget')),
                              array('val' => '1', 'label' => __('Thumbnail map only', 'google-maps-widget')),
                              array('val' => '2', 'label' => __('Interactive map only', 'google-maps-widget')));
-    
+
     $interactive_pin_click_options = array(array('val' => '1', 'label' => __('Show description bubble (default)', 'google-maps-widget')),
                                            array('val' => '2', 'label' => __('Open URL', 'google-maps-widget')),
                                            array('val' => '3', 'label' => __('Open URL in a new tab', 'google-maps-widget')),
                                            array('val' => '0', 'label' => __('No action', 'google-maps-widget')));
-    
+
     $lightbox_locks = array(array('val' => 'noscroll', 'label' => __('Disable mouse scrollwheel', 'google-maps-widget')),
                             array('val' => 'nostreet', 'label' => __('Disable Street View', 'google-maps-widget')),
                             array('val' => 'nodrag', 'label' => __('Disable dragging', 'google-maps-widget')),
@@ -278,7 +282,7 @@ class GoogleMapsWidget extends WP_Widget {
                             array('val' => 'nozoom', 'label' => __('Hide zoom UI', 'google-maps-widget')),
                             array('val' => 'notype', 'label' => __('Hide map type UI', 'google-maps-widget')),
                             array('val' => 'nopan', 'label' => __('Hide panning UI', 'google-maps-widget')));
-                            
+
     $lightbox_layers = array(array('val' => 'traffic', 'label' => __('Traffic', 'google-maps-widget')),
                              array('val' => 'transit', 'label' => __('Transit', 'google-maps-widget')),
                              array('val' => 'bicycle', 'label' => __('Bicycle tracks', 'google-maps-widget')));
@@ -287,13 +291,13 @@ class GoogleMapsWidget extends WP_Widget {
     if (!GMWP::is_activated()) {
       echo '<p>Please enter your license key below and click Save. The key can be found in the email you received after purchasing. If you lost it please contact <a href="mailto:gmw@webfactoryltd.com?subject=Lost%20license%20key">support</a>. If you don\'t have a license - <a href="#" data-target-screen="gmw_dialog_intro" class="open_promo_dialog">purchase one now</a>.</p>';
       echo '<p><label for="' . $this->get_field_id('activation_code') . '">' . __('License Key', 'google-maps-widget') . ':</label>';
-      echo '<input data-tooltip="Your license key will be in the following format: 
+      echo '<input data-tooltip="Your license key will be in the following format:
       _12345678-12345678-12345678-12345678 or 12345678_ if you have a trial key." class="widefat activation_code" id="' . $this->get_field_id('activation_code') . '" name="' . $this->get_field_name('activation_code') . '" placeholder="12345678-12345678-12345678-12345678" type="text" value="' . esc_attr($options['activation_code']) . '"><br>
       <input type="button" class="button button-primary gmw-widget-save-license" value="Save &amp; Validate License Key" style="margin-top: 1em;">';
       echo '</p>';
-      
+
       echo '<p>If you are having any problems with the license please do not hasitate to contact <a href="mailto:gmw@webfactoryltd.com?subject=License%20key%20problem">support</a>.</p>';
-      
+
       return;
     } // license check
 
@@ -303,14 +307,13 @@ class GoogleMapsWidget extends WP_Widget {
       $days = round($days / DAY_IN_SECONDS);
       echo '<p class="gmw-trial-notice"><b>Thank you</b> for trying out Google Maps Widget PRO! If you have any questions do not hesitate to contact our <a href="mailto:gmw@webfactoryltd.com?subject=Trial%20support">support</a>.</p>';
     }
-    
+
     // warn if API key is not set
-    // disabled - already have notice on top
-    if (0 && !GMWP::get_api_key('test')) {
+    if (!GMWP::get_api_key('test')) {
       echo '<p class="gmw-api-key-error"><b>Important!</b> ';
-      echo 'Go to <a href="' . admin_url('options-general.php?page=gmw_options') . '" title="Google Maps Widget PRO settings">settings</a> and follow instructions on how to obtain your <b>free maps API key</b>. Without a key the maps will stop working.</p>';
+      echo 'Go to <a href="' . admin_url('options-general.php?page=gmw_options') . '" title="Google Maps Widget PRO settings">settings</a> and follow instructions on how to obtain your <b>free maps API key</b>. Without a key the maps will stop working. This requirement is enforced by Google.</p>';
     }
-    
+
     // widget options markup
     // title & address
     echo '<p><label for="' . $this->get_field_id('title') . '">' . __('Title', 'google-maps-widget') . ':</label>';
@@ -320,15 +323,15 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<div class="input-address-group gmw_single_pin_feature">';
     echo '<input name="' . $this->get_field_name('address') . '" type="text" value="' . esc_attr($address) . '" required="required" class="widefat" id="' . $this->get_field_id('address') . '" placeholder="' . __('Address / location to show', 'google-maps-widget') . '" data-tooltip="' . htmlspecialchars('Address or location shown on both maps. Coordinates can be used as well, but please write them in a numerical fashion, not in degrees, ie: 40.70823, -74.01052
           If interactive map mode is set to directions this address is used as the destination address. If the mode is set to search the address will be used as the map and search center.') . '">';
-    echo '<a data-target="' . $this->get_field_id('address') . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';    
+    echo '<a data-target="' . $this->get_field_id('address') . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';
     echo '</div>';
     // end - title & address
-    
+
     echo '<div class="gmw-tabs" id="tab-' . $this->id . '"><ul>';
     echo '<li><a href="#gmw-thumb">' . __('Thumbnail Map', 'google-maps-widget') . '</a></li>';
     echo '<li><a href="#gmw-lightbox">' . __('Interactive Map', 'google-maps-widget') . '</a></li>';
     echo '<li><a href="#gmw-pins">' . __('Pins', 'google-maps-widget') . '</a></li>';
-    echo '<li><a href="#gmw-shortcode">' . __('Shortcode', 'google-maps-widget') . '</a></li>';
+    echo '<li><a href="#gmw-shortcode">' . __('Tools', 'google-maps-widget') . '</a></li>';
     echo '<li><a href="#gmw-info">' . __('Info &amp; Support', 'google-maps-widget') . '</a></li>';
     echo '</ul>';
 
@@ -348,7 +351,7 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<select data-tooltip="Changes the overall appearance of the map. Please note that most visitors are acustomed to the Refreshed color scheme." class="gmw_thumb_color_scheme" id="' . $this->get_field_id('thumb_color_scheme') . '" name="' . $this->get_field_name('thumb_color_scheme') . '">';
     GMWP::create_select_options($thumb_color_schemes, $thumb_color_scheme);
     echo '</select></p>';
-    
+
     echo '<p class="thumb_color_scheme_custom"><label style="margin-top: -40px;" class="gmw-label" for="' . $this->get_field_id('thumb_color_scheme_custom') . '">' . __('Custom Color Scheme', 'google-maps-widget') . ':</label>';
     echo '<textarea data-tooltip="Only use JSON formatted (JS style) custom style.<br><a target=\'blank\' href=\'https://snazzymaps.com/\'>Snazzy Maps</a> offers over 15,000 custom map styles you can customize. <a target=\'blank\' href=\'http://www.mapstylr.com/map-style-editor/\'>Mapstylr</a> and <a target=\'blank\' href=\'https://mapstyle.withgoogle.com/\'>Mapstyle</a> offer style builders too. Refer to <a target=\'blank\' href=\'http://www.gmapswidget.com/documentation/\'>documentation</a> for more details.<br>*Important*: due to URL length limitations imposed by browsers some custom styles may not be applied. If that happens try using a simpler style with less customizations." class="" id="' . $this->get_field_id('thumb_color_scheme_custom') . '" rows="2" cols="20" placeholder="JSON formatted custom map style" name="' . $this->get_field_name('thumb_color_scheme_custom') . '">';
     echo esc_textarea($thumb_color_scheme_custom);
@@ -358,14 +361,14 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<select data-tooltip="Zoom varies from the lowest level, in which the entire world can be seen, to highest, which shows streets and individual buildings. Building outlines, where available, appear on the map around zoom level 17. This value differs from area to area." class="gmw_thumb_zoom" id="' . $this->get_field_id('thumb_zoom') . '" name="' . $this->get_field_name('thumb_zoom') . '">';
     GMWP::create_select_options($zoom_levels_thumb, $thumb_zoom);
     echo '</select></p>';
-                                                                        
+
     echo '<p class="gmw_single_pin_feature"><label class="gmw-label" for="' . $this->get_field_id('thumb_pin_type') . '">' . __('Pin Type', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Predefined pin can be adjusted in terms of color, size and one letter label.
           Custom pin can be any custom image stored on a publically available server.
           If you are using a pin from the library please note that it will *not work* if your site is on a localhost or a secure only (https) server." class="gmw_thumb_pin_type" id="' . $this->get_field_id('thumb_pin_type') . '" name="' . $this->get_field_name('thumb_pin_type') . '">';
     GMWP::create_select_options($thumb_pin_types, $thumb_pin_type);
     echo '</select></p>';
-    
+
     echo '<p class="gmw_thumb_pin_type_custom_library gmw_single_pin_feature"><span class="gmw-label">' . __('Pin Image', 'google-maps-widget') . ':</span>';
     echo '<input class="thumb_pin_img_library" type="hidden" id="' . $this->get_field_id('thumb_pin_img_library') . '" name="' . $this->get_field_name('thumb_pin_img_library') . '" value="' . esc_attr($thumb_pin_img_library) . '">';
     echo '<a data-target="' . $this->get_field_id('thumb_pin_img_library') . '" class="button button-secondary open_pins_library" href="#">Open pins library</a> <img class="thumb_pin_img_library_preview" src="' . plugins_url('/images/pins/' . $thumb_pin_img_library, __FILE__) . '">';
@@ -388,7 +391,7 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<p class="gmw_thumb_pin_type_custom gmw_single_pin_feature"><label class="gmw-label" for="' . $this->get_field_id('thumb_pin_img') . '">' . __('Pin Image URL', 'google-maps-widget') . ':</label>';
     echo '<input data-tooltip="Enter the full URL to the image, starting with http://. Image has to be publicly accessible and with size up to 64x64px. Https and localhost are *not* supported." placeholder="http://" type="text" class="regular-text" id="' . $this->get_field_id('thumb_pin_img') . '" name="' . $this->get_field_name('thumb_pin_img') . '" value="' . esc_attr($thumb_pin_img) . '">';
     echo '</p>';
-    
+
     echo '<p><label class="gmw-label" for="' . $this->get_field_id('thumb_link_type') . '">' . __('Link To', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Choose what happens when the map is clicked. Clicks are tracked in Google Analytics if that option is set in settings. Please configure interactive map\'s settings in its tab." class="gmw_thumb_link_type" id="' . $this->get_field_id('thumb_link_type') . '" name="' . $this->get_field_name('thumb_link_type') . '">';
     GMWP::create_select_options($thumb_link_types, $thumb_link_type);
@@ -429,7 +432,7 @@ class GoogleMapsWidget extends WP_Widget {
           Street View provides panoramic views on the designated location. Please note that it\'s not available on all locations." class="gmw_lightbox_mode" id="' . $this->get_field_id('lightbox_mode') . '" name="' . $this->get_field_name('lightbox_mode') . '">';
     GMWP::create_select_options($lightbox_modes, $lightbox_mode);
     echo '</select></p>';
-    
+
     echo '<p class="gmw_lightbox_mode_search gmw_single_pin_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_search') . '">' . __('Search Query', 'google-maps-widget') . ':</label>';
     echo '<input data-tooltip="The search term, ie: pizza. It can include a geographic restriction, such as \'In New York\'. Location should be the same as the main map address." placeholder="' . __('Pizza in New York', 'google-maps-widget') . '" id="' . $this->get_field_id('lightbox_search') . '" name="' . $this->get_field_name('lightbox_search') . '" type="text" value="' . esc_attr($lightbox_search) . '">';
     echo '</p>';
@@ -438,7 +441,7 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<label class="gmw-label" for="' . $this->get_field_id('lightbox_origin') . '">' . __('Start Address', 'google-maps-widget') . ':</label>';
     echo '<span class="input-address-group">';
     echo '<input data-tooltip="Start address for directions. Destination is defined in the map\'s address." id="' . $this->get_field_id('lightbox_origin') . '" name="' . $this->get_field_name('lightbox_origin') . '" type="text" value="' . esc_attr($lightbox_origin) . '">';
-    echo '<a href="#" data-target="' . $this->get_field_id('lightbox_origin') . '" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';  
+    echo '<a href="#" data-target="' . $this->get_field_id('lightbox_origin') . '" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';
     echo '</span>';
     echo '</p>';
 
@@ -456,32 +459,37 @@ class GoogleMapsWidget extends WP_Widget {
     echo '<select data-tooltip="Controls the map type." id="' . $this->get_field_id('lightbox_map_type') . '" name="' . $this->get_field_name('lightbox_map_type') . '">';
     GMWP::create_select_options($lightbox_map_types, $lightbox_map_type);
     echo '</select></p>';
-    
+
     echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_map_type_multiple') . '">' . __('Map Type', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Controls the map type." id="' . $this->get_field_id('lightbox_map_type_multiple') . '" name="' . $this->get_field_name('lightbox_map_type_multiple') . '">';
     GMWP::create_select_options($thumb_map_types, $lightbox_map_type_multiple);
     echo '</select></p>';
-    
+
     echo '<p><label class="gmw-label" for="' . $this->get_field_id('lightbox_zoom') . '">' . __('Zoom Level', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Zoom varies from the lowest level, in which the entire world can be seen, to highest, which shows streets and individual buildings. Building outlines, where available, appear on the map around zoom level 17. This value differs from area to area." id="' . $this->get_field_id('lightbox_zoom') . '" name="' . $this->get_field_name('lightbox_zoom') . '">';
     GMWP::create_select_options($zoom_levels_lightbox, $lightbox_zoom);
     echo '</select></p>';
-    
-    echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_clustering') . '">' . __('Clustering', 'google-maps-widget') . ':</label>';
+
+    echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_clustering') . '">' . __('Pins Clustering', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Clustering enables pins grouping depending on their distances on the current view. It declutters the map when a lot of pins are displayed." id="' . $this->get_field_id('lightbox_clustering') . '" name="' . $this->get_field_name('lightbox_clustering') . '">';
     GMWP::create_select_options($lightbox_clustering_options, $lightbox_clustering);
     echo '</select></p>';
-    
+
+    echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_filtering') . '">' . __('Pins Filtering', 'google-maps-widget') . ':</label>';
+    echo '<select data-tooltip="Filtering gives users the ability to show/hide pins based on group name(s) set for each pin. Additional GUI is displayed in the upper right corner of the map." id="' . $this->get_field_id('lightbox_filtering') . '" name="' . $this->get_field_name('lightbox_filtering') . '">';
+    GMWP::create_select_options($lightbox_filtering_options, $lightbox_filtering);
+    echo '</select></p>';
+
     echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_color_scheme') . '">' . __('Color Scheme', 'google-maps-widget') . ':</label>';
     echo '<select class="gmw_lightbox_color_scheme" data-tooltip="Changes the overall appearance of the map. Please note that most visitors are acustomed to the default color scheme.<br>Color schemes work only on default (road) map type." id="' . $this->get_field_id('lightbox_color_scheme') . '" name="' . $this->get_field_name('lightbox_color_scheme') . '">';
     GMWP::create_select_options($lightbox_color_schemes, $lightbox_color_scheme);
     echo '</select></p>';
-    
+
     echo '<p class="lightbox_color_scheme_custom gmw_multiple_pins_feature"><label style="margin-top: -40px;" class="gmw-label" for="' . $this->get_field_id('lightbox_color_scheme_custom') . '">' . __('Custom Color Scheme', 'google-maps-widget') . ':</label>';
     echo '<textarea data-tooltip="Only use JSON formatted (JS style) custom style.<br><a target=\'blank\' href=\'https://snazzymaps.com/\'>Snazzy Maps</a> offers over 15,000 custom map styles you can customize. <a target=\'blank\' href=\'http://www.mapstylr.com/map-style-editor/\'>Mapstylr</a> and <a target=\'blank\' href=\'https://mapstyle.withgoogle.com/\'>Mapstyle</a> offer style builders too. Refer to <a target=\'blank\' href=\'http://www.gmapswidget.com/documentation/\'>documentation</a> for more details." class="" id="' . $this->get_field_id('lightbox_color_scheme_custom') . '" rows="2" cols="20" placeholder="JSON formatted custom map style" name="' . $this->get_field_name('lightbox_color_scheme_custom') . '">';
     echo esc_textarea($lightbox_color_scheme_custom);
     echo '</textarea></p>';
-    
+
     echo '<p class="gmw_multiple_pins_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_layer') . '">' . __('Map Layers', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Traffic - displays traffic conditions on the map
 Transit - displays the public transport network of your city on the map
@@ -493,7 +501,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     echo '<select data-tooltip="By disabling various map features, you can make the map more user-friendly by removing distracting elements users don\'t need" multiple="multiple" class="gmw-select2" data-placeholder="' . __('Click to disable interactive map features', 'google-maps-widget') . '" id="' . $this->get_field_id('lightbox_lock') . '" name="' . $this->get_field_name('lightbox_lock') . '[]">';
     GMWP::create_select_options($lightbox_locks, $lightbox_lock);
     echo '</select></p>';
-    
+
     echo '<p class="gmw_single_pin_feature"><label class="gmw-label" for="' . $this->get_field_id('lightbox_lang') . '">' . __('Map Language', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Not all map labels and texts have translations. Everything is controlled by Google at their discretion. If you choose the auto-detect mode language will be detected from the users browser settings." id="' . $this->get_field_id('lightbox_lang') . '" name="' . $this->get_field_name('lightbox_lang') . '">';
     GMWP::create_select_options($lightbox_langs, $lightbox_lang);
@@ -506,7 +514,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     echo '<span class="gmw_lightbox_fullscreen_custom_section"><span class="gmw-label label-holder">&nbsp;</span>';
     echo '<input data-title="Map Width" data-tooltip="Interactive map width in pixels; from 50 to 2000. If needed, map will be resized to accomodate for smaller screens." class="small-text fullscreen_fix" min="50" max="2000" step="1" id="' . $this->get_field_id('lightbox_width') . '" type="number" name="' . $this->get_field_name('lightbox_width') . '" value="' . esc_attr($lightbox_width) . '" required="required"> x ';
     echo '<input data-title="Map Height" data-tooltip="Interactive map height in pixels; from 50 to 2000. If needed, map will be resized to accomodate for smaller screens." class="small-text" id="' . $this->get_field_id('lightbox_height') . '" name="' . $this->get_field_name('lightbox_height') . '" type="number" step="1" min="50" max="2000" value="' . esc_attr($lightbox_height) . '" required="required"> px</span></p>';
-    
+
     echo '<p><label class="gmw-label" for="' . $this->get_field_id('lightbox_skin') . '">' . __('Lightbox Skin', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Controls the overall appearance of the lightbox, not the map itself. Adjust according to your site\'s design." class="gmw_lightbox_skin" id="' . $this->get_field_id('lightbox_skin') . '" name="' . $this->get_field_name('lightbox_skin') . '">';
     GMWP::create_select_options($lightbox_skins, $lightbox_skin);
@@ -532,7 +540,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     // pins tab
     echo '<div id="gmw-pins">';
     echo '<input class="multiple_pins" id="' . $this->get_field_id('multiple_pins') . '" type="hidden" name="' . $this->get_field_name('multiple_pins') . '" value="' . esc_attr($multiple_pins) . '">';
-    
+
     // blank pin
     echo '<div class="gmw-blank-pin" style="display: none;">';
     echo '<div class="gmw-pin-group">';
@@ -540,42 +548,45 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     echo '<div class="gmw_pin_container">';
     echo '<div class="input-address-group">';
     echo '<input disabled="disabled" name="' . $this->get_field_name('pins') . '[address][]" type="text" value="" class="widefat" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address]-##') . '" placeholder="' . __('Address / pin location', 'google-maps-widget') . '" data-tooltip="' . htmlspecialchars('Address or location used for both maps. Coordinates can be used as well. Write them in a numerical fashion, not in degrees, ie: 40.70823, -74.01052.') . '">';
-    echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address]-##', false) . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';    
+    echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address]-##', false) . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';
     echo '</div>';
 
     echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[show_on]-##') . '">' . __('Show on', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="A pin can be shown only on the thumbnail map, only on the interactive map, or by default on both maps." disabled="disabled" name="' . $this->get_field_name('pins') . '[show_on][]" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[show_on]-##', false) . '">';
     GMWP::create_select_options($show_on_options, 0);
     echo '</select></p>';
-    
+
     echo '<p class="colorpicker_section"><span class="gmw-label">' . __('Thumbnail Pin Color', 'google-maps-widget') . ':</span>';
     echo '<input disabled="disabled" data-tooltip="Use the colorpicker to choose a custom color for the thumbnail pin." class="gmw-colorpicker gmw-skip-colorpicker-init" data-specialtype="colorpicker" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[thumb_pin_color]-##') . '" name="' . $this->get_field_name('pins') . '[thumb_pin_color][]' . '" type="text" value="' . self::$defaults['pins'][0]['thumb_pin_color'] . '">';
     echo '</p>';
-        
+
     echo '<p><span class="gmw-label">' . __('Interactive Pin', 'google-maps-widget') . ':</span>';
     echo '<input disabled="disabled" class="thumb_pin_img_library" type="hidden" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img]-##') . '" name="' . $this->get_field_name('pins') . '[interactive_pin_img][]" value="' . esc_attr(self::$defaults['pins'][0]['interactive_pin_img']) . '">';
     echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img]-##', false) . '" class="button button-secondary open_pins_library" href="#">Open pins library</a> <a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img]-##', false) . '" href="#" class="button button-secondary gmw_set_custom_pin">Set custom pin</a> <img class="thumb_pin_img_library_preview" src="' . GMW_PLUGIN_URL . 'images/pins/' . self::$defaults['pins'][0]['interactive_pin_img'] . '">';
     echo '</p>';
-    
+
     echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_click]-##') . '">' . __('On Interactive Pin Click', 'google-maps-widget') . ':</label>';
     echo '<select data-tooltip="Clicking on pins placed on interactive maps can: open/close description bubbles with arbitrary content, open a user-defined link, or do nothing." class="interactive_pin_click" disabled="disabled" name="' . $this->get_field_name('pins') . '[interactive_pin_click][]" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_click]-##', false) . '">';
     GMWP::create_select_options($interactive_pin_click_options, 1);
     echo '</select></p>';
-    
+
     echo '<p class="pin-click-url"><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_url]-##') . '">' . __('Pin Click URL', 'google-maps-widget') . ':</label>';
     echo '<input type="text" data-tooltip="All links leading to external sites have to start with _https://_ or _http://_" disabled="disabled" name="' . $this->get_field_name('pins') . '[interactive_pin_url][]" value="" placeholder="Interactive pin click target URL" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_url]-##', false) . '">';
     echo '</p>';
-    
+
     echo '<p class="pin-description"><label for="' . GMWP::field_name_to_id($this->get_field_name('pins')) . '[description]-##">' . __('Description', 'google-maps-widget') . ':</label>';
     echo '<textarea placeholder="Pin description shown on click" disabled="disabled" data-tooltip="Pin description shown when user clicks on it. Supports HTML and shortcodes. Use CSS on _div.gmw_infowindow_ to style it." class="widefat" rows="1" cols="20" id="' . GMWP::field_name_to_id($this->get_field_name('pins'), false) . '[description]-##" name="' . $this->get_field_name('pins') . '[description][]">'. esc_textarea(self::$defaults['pins'][0]['description']) . '</textarea></p>';
-    
+
+    echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[group]-##') . '">' . __('Group Name', 'google-maps-widget') . ':</label>';
+    echo '<input type="text" data-tooltip="Filtering (when enabled in interactive map options) is based on group names. Names are completely arbitrary and case-sensitive - make sure they are the same between multiple pins. Separate multiple names by a comma." disabled="disabled" name="' . $this->get_field_name('pins') . '[group][]" value="" placeholder="Pin group #1, Pin group #2" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[group]-##', false) . '">';
+    echo '</p>';
+
     echo '</div>'; // pin container
     echo '</div>'; // pin group
     echo '</div>'; // blank pin
-    
+
     // pins active
     echo '<div class="gmw_multiple_pins_feature gmw_accordion_wrapper">';
-    
     echo '<div class="gmw-accordion">';
     $i = 0;
     foreach ($pins as $pin) {
@@ -585,68 +596,77 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
       echo '<div class="gmw_pin_container">';
       echo '<div class="input-address-group">';
       echo '<input name="' . $this->get_field_name('pins') . '[address][]" type="text" value="' . esc_attr($pin['address']) . '" class="widefat" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address][]') . '" placeholder="' . __('Address / pin location', 'google-maps-widget') . '" data-tooltip="' . htmlspecialchars('Address or location used for both maps. Coordinates can be used as well. Write them in a numerical fashion, not in degrees, ie: 40.70823, -74.01052.') . '">';
-      echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address][]', false) . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';    
+      echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[address][]', false) . '" href="#" class="button-secondary gmw-pick-address"><span class="dashicons dashicons-location"></span></a>';
       echo '</div>';
-    
+
       echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[show_on][]', true) . '">' . __('Show on', 'google-maps-widget') . ':</label>';
       echo '<select data-tooltip="A pin can be shown only on the thumbnail map, only on the interactive map, or by default on both maps." name="' . $this->get_field_name('pins') . '[show_on][]" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[show_on][]', false) . '">';
       GMWP::create_select_options($show_on_options, $pin['show_on']);
       echo '</select></p>';
-      
+
       echo '<p class="colorpicker_section"><span class="gmw-label">' . __('Thumbnail Pin Color', 'google-maps-widget') . ':</span>';
       echo '<input data-tooltip="Use the colorpicker to choose a custom color for the thumbnail pin." class="gmw-colorpicker" data-specialtype="colorpicker" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[thumb_pin_color][]', false) . '" name="' . $this->get_field_name('pins') . '[thumb_pin_color][]' . '" type="text" value="' . esc_attr($pin['thumb_pin_color']) . '">';
       echo '</p>';
-      
+
       echo '<p><span class="gmw-label">' . __('Interactive Pin', 'google-maps-widget') . ':</span>';
       echo '<input class="thumb_pin_img_library" type="hidden" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img][]') . '" name="' . $this->get_field_name('pins') . '[interactive_pin_img][]" value="' . esc_attr($pin['interactive_pin_img']) . '">';
       echo '<a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img][]', false) . '" class="button button-secondary open_pins_library" href="#">Open pins library</a> <a data-target="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_img][]', false) . '" href="#" class="button button-secondary gmw_set_custom_pin">Set custom pin</a>';
       if (strpos($pin['interactive_pin_img'], '//') !== false) {
         echo '<img class="thumb_pin_img_library_preview" src="' . $pin['interactive_pin_img'] . '">';
       } else {
-        echo '<img class="thumb_pin_img_library_preview" src="' . GMW_PLUGIN_URL . 'images/pins/' . $pin['interactive_pin_img'] . '">';  
+        echo '<img class="thumb_pin_img_library_preview" src="' . GMW_PLUGIN_URL . 'images/pins/' . $pin['interactive_pin_img'] . '">';
       }
       echo '</p>';
-      
+
       echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_click][]') . '">' . __('On Interactive Pin Click', 'google-maps-widget') . ':</label>';
       echo '<select class="interactive_pin_click" data-tooltip="Clicking on pins placed on interactive maps can: open/close description bubbles with arbitrary content, open a user-defined link, or do nothing." name="' . $this->get_field_name('pins') . '[interactive_pin_click][]" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_click][]', false) . '">';
       GMWP::create_select_options($interactive_pin_click_options, $pin['interactive_pin_click']);
       echo '</select></p>';
-      
+
       echo '<p class="pin-click-url"><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_url][]') . '">' . __('Pin Click URL', 'google-maps-widget') . ':</label>';
       echo '<input type="text" data-tooltip="All links leading to external sites have to start with _https://_ or _http://_" name="' . $this->get_field_name('pins') . '[interactive_pin_url][]" value="' . esc_attr($pin['interactive_pin_url']) . '" placeholder="Interactive pin click target URL" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[interactive_pin_url][]', false) . '">';
       echo '</p>';
-      
+
       echo '<p class="pin-description"><label for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[description][]') . '">' . __('Description', 'google-maps-widget') . ':</label>';
       echo '<textarea data-tooltip="Pin description shown when user clicks on it. Supports HTML and shortcodes. Use CSS on _div.gmw_infowindow_ to style it." placeholder="Pin description shown on click" class="widefat" rows="1" cols="20" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[description][]', false) . '" name="' . $this->get_field_name('pins') . '[description][]">'. esc_textarea($pin['description']) . '</textarea></p>';
+
+      echo '<p><label class="gmw-label" for="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[group][]') . '">' . __('Group Name', 'google-maps-widget') . ':</label>';
+      echo '<input type="text" data-tooltip="Filtering (when enabled in interactive map options) is based on group names. Names are completely arbitrary and case-sensitive - make sure they are the same between multiple pins. Separate multiple names by a comma." name="' . $this->get_field_name('pins') . '[group][]" value="' . esc_attr($pin['group']) . '" placeholder="Pin group #1, Pin group #2" id="' . GMWP::field_name_to_id($this->get_field_name('pins') . '[group][]', false) . '">';
+      echo '</p>';
 
       echo '</div>'; // pin container
       echo '</div>'; // pin group
     } // foreach pins
     echo '</div>'; // accordion
-    
+
     echo '<p class="gmw_new_pin_container" title="Add new pin"><span class="ui-state-default ui-icon ui-icon-plus"></span><span>Add new pin</span></p>';
-    
+
     echo '<p><br><a href="#" class="gmw_disable_multiple_pins">Disable multiple pins</a> (no settings will be lost)</p>'; echo '</div>';
-  
+
     // pins disabled
     echo '<div class="gmw_single_pin_feature">';
     echo '<p>To simplify editing, by default, multiple pins feature is disabled. Enabling it will not reset the widget or alter any settings.</p>';
     echo '<p><br><a href="#" class="button button-secondary gmw_enable_multiple_pins">Enable multiple pins</a></p>';
     echo '</div>';
-    
+
     echo '</div>';
     // end - pins tab
-    
-    // shortcode tab
+
+    // shortcode tab -> tools
     echo '<div id="gmw-shortcode">';
     $id = str_replace('googlemapswidget-', '', $this->id);
 
+    echo '<h4>' . __('Shortcode', 'google-maps-widget') . '</h4>';
     if (empty($id) || !is_numeric($id)) {
       echo '<p>' . __('Please save the widget so that the shortcode can be generated.', 'google-maps-widget') . '</p>';
     } else {
       echo '<p><code>[' . $options['sc_map'] . ' thumb_width="' . $thumb_width . '" thumb_height="' . $thumb_width . '" id="' . $id . '"]</code><br></p>';
       echo '<p>' . __('Use the above shortcode to display this Google Maps Widget instance in any page or post. <br>Please note that your theme might style the widget in the post as if it is placed in a sidebar. In that case use the <code>div.gmw-shortcode-widget</code> class to target the shortcode and make  necessary changes via CSS.', 'google-maps-widget') . '</p>';
     }
+
+    echo '<h4>' . __('Import pins', 'google-maps-widget') . '</h4>';
+    echo '<p>If you need to add more than 5-10 pins importing them is probably a better &amp; faster idea. Sample CSV file and detailed instructions are available in <a href="' . admin_url('options-general.php?page=gmw_options&widget_id=' . $id . '&gmw-settings-tabs=1') .'">GMW options - Import Pins</a>.</p>';
+
     echo '</div>';
     // end - shortcode tab
 
@@ -655,17 +675,17 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     echo '<h4>' . __('Support', 'google-maps-widget') . '</h4>';
     echo '<p>If you have any problems, questions or would like a new feature added, please contact our support <a href="mailto:gmw@webfactoryltd.com?subject=GMW%20support">via email</a>. As a paying customer you have access to premium, prioritised support.';
     echo '</p>';
-    
+
     echo '<h4>' . __('License', 'google-maps-widget') . '</h4>';
     echo '<p>Your license is active and valid. Additional info is available in <a href="' . admin_url('options-general.php?page=gmw_options') . '" title="Settings">settings</a>.</p>';
 
     echo '<h4>' . __('Rate the plugin &amp; spread the word', 'google-maps-widget') . '</h4>';
-    echo '<p>It won\'t take you more than a minute, but it will help us immensely. So please - <a href="https://wordpress.org/support/view/plugin-reviews/google-maps-widget" target="_blank">rate the plugin</a>. Or spread the word by <a href="https://twitter.com/intent/tweet?via=WebFactoryLtd&amp;text=' . urlencode('I\'m using the #free Google Maps Widget for #wordpress. You can grab it too at http://goo.gl/2qcbbf') . '" target="_blank">tweeting about it</a>. Thank you!</p>';      
+    echo '<p>It won\'t take you more than a minute, but it will help us immensely. So please - <a href="https://wordpress.org/support/view/plugin-reviews/google-maps-widget" target="_blank">rate the plugin</a>. Or spread the word by <a href="https://twitter.com/intent/tweet?via=WebFactoryLtd&amp;text=' . urlencode('I\'m using the #free Google Maps Widget for #wordpress. You can grab it too at http://goo.gl/2qcbbf') . '" target="_blank">tweeting about it</a>. Thank you!</p>';
     echo '</div>';
     // end - info tab
     echo '</div><p></p>'; // tabs
 
-    echo '<p class="widget_footer_info">' . sprintf(__('Additional options are available in <a href="%s" title="Settings">settings</a>. ', 'google-maps-widget'), admin_url('options-general.php?page=gmw_options')) . __('If you experience any problems or need help, please contact <a href="mailto:gmw@webfactoryltd.com?subject=GMW%20support">support</a>.', 'google-maps-widget') . '</p>';
+    echo '<p class="widget_footer_info">' . sprintf(__('Additional options are available in <a href="%s" title="Settings">settings</a>. ', 'google-maps-widget'), admin_url('options-general.php?page=gmw_options')) . __('All options are explained in details in the <a href="https://www.gmapswidget.com/documentation/" target="_blank">documentation</a>. If you need further help, please contact <a href="mailto:gmw@webfactoryltd.com?subject=GMW%20support">support</a>.', 'google-maps-widget') . '</p>';
   } // form
 
 
@@ -679,10 +699,10 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     if (sizeof($new_instance) < 10) {
       return $old_instance;
     }
-    
+
     $instance['title'] = $new_instance['title'];
     $instance['address'] = strip_tags(trim($new_instance['address']));
-    
+
     $instance['thumb_pin_type'] = $new_instance['thumb_pin_type'];
     $instance['thumb_pin_color'] = GMWP::sanitize_hex_color($new_instance['thumb_pin_color']);
     $instance['thumb_pin_size'] = $new_instance['thumb_pin_size'];
@@ -715,12 +735,13 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     $instance['lightbox_map_type_multiple'] = $new_instance['lightbox_map_type_multiple'];
     $instance['lightbox_zoom'] = $new_instance['lightbox_zoom'];
     $instance['lightbox_clustering'] = $new_instance['lightbox_clustering'];
+    $instance['lightbox_filtering'] = $new_instance['lightbox_filtering'];
     $instance['lightbox_feature'] = (array) $new_instance['lightbox_feature'];
     $instance['lightbox_header'] = trim($new_instance['lightbox_header']);
     $instance['lightbox_footer'] = trim($new_instance['lightbox_footer']);
     $instance['lightbox_skin'] = $new_instance['lightbox_skin'];
     $instance['lightbox_lang'] = $new_instance['lightbox_lang'];
-    
+
     $instance['lightbox_lock'] = (array) $new_instance['lightbox_lock'];
     $instance['lightbox_layer'] = (array) $new_instance['lightbox_layer'];
     $instance['lightbox_color_scheme'] = $new_instance['lightbox_color_scheme'];
@@ -728,7 +749,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     $instance['multiple_pins'] = (int) $new_instance['multiple_pins'];
     $tmp = sizeof($new_instance['pins']['show_on']);
     $instance['pins'] = array();
-	
+
 	  for ($i = 0; $i < $tmp; $i++) {
       $pin = array('address' => trim($new_instance['pins']['address'][$i]),
                    'thumb_pin_color' => GMWP::sanitize_hex_color($new_instance['pins']['thumb_pin_color'][$i]),
@@ -736,8 +757,9 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
                    'interactive_pin_click' => trim($new_instance['pins']['interactive_pin_click'][$i]),
                    'interactive_pin_img' => trim($new_instance['pins']['interactive_pin_img'][$i]),
                    'interactive_pin_url' => trim($new_instance['pins']['interactive_pin_url'][$i]),
-                   'show_on' => $new_instance['pins']['show_on'][$i]);
-                   
+                   'show_on' => $new_instance['pins']['show_on'][$i],
+                   'group' => trim(str_replace('  ', ' ', $new_instance['pins']['group'][$i])));
+
       if (preg_match('|^([-+]?\d{1,2}([.]\d+)?),\s*([-+]?\d{1,3}([.]\d+)?)$|', $new_instance['pins']['address'][$i])) {
         $pin['latlng'] = true;
         $tmp2 = explode(',', $new_instance['pins']['address'][$i]);
@@ -758,7 +780,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
           $pin['latlng'] = false;
         }
       }
-      
+
       $instance['pins'][] = $pin;
     } // for pins
 
@@ -776,12 +798,12 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
 
     $options = GMWP::get_options();
     $instance = $this->upgrade_wiget_instance($instance);
-    
+
     // check license
     if (!GMWP::is_activated()) {
       return false;
     }
-    
+
     $map_src = '//maps.googleapis.com/maps/api/staticmap';
 
     // make sure all params are defined
@@ -815,7 +837,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
         $markers = '&amp;' . substr($markers, 0, -5);
       }
       if ($instance['thumb_zoom'] != 'auto') {
-        $map_params['zoom'] = $instance['thumb_zoom'];  
+        $map_params['zoom'] = $instance['thumb_zoom'];
         $map_params['center'] = $center;
       }
     } else { // single pin
@@ -829,10 +851,10 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
       $map_params['markers'] .= '|' . $instance['address'];
       $map_params['center'] = $instance['address'];
       if ($instance['thumb_zoom'] != 'auto') {
-        $map_params['zoom'] = $instance['thumb_zoom'];  
+        $map_params['zoom'] = $instance['thumb_zoom'];
       }
     } // single pin
-    
+
     if ($instance['thumb_color_scheme'] == 'new') {
       $map_params['visual_refresh'] = 'true';
     } elseif ($instance['thumb_color_scheme'] == 'custom') {
@@ -842,7 +864,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
       $map_params['visual_refresh'] = 'false';
       $style = '&amp;' . str_replace('&', '&amp;', GMWP_styles::$php_styles[$instance['thumb_color_scheme']]);
     }
-    
+
     // start building widget markup
     $out .= $widget['before_widget'];
 
@@ -876,7 +898,7 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
       $widget_content .= '<a class="gmw-thumbnail-map" title="' . esc_attr($instance['address']) . '" href="' . $instance['thumb_link'] . '">';
     } elseif ($instance['thumb_link_type'] == 'custom_blank') {
       $map_alt = esc_attr($instance['address']);
-      $widget_content .= '<a class="gmw-thumbnail-map" title="' . esc_attr($instance['address']) . '" target="_blank" href="' . $instance['thumb_link'] . '">';  
+      $widget_content .= '<a class="gmw-thumbnail-map" title="' . esc_attr($instance['address']) . '" target="_blank" href="' . $instance['thumb_link'] . '">';
     } elseif ($instance['thumb_link_type'] == 'map_blank') {
       $map_alt = __('Click to open the interactive map in a new window', 'google-maps-widget');
       $map_url = GMWP::build_lightbox_url($instance);
@@ -890,9 +912,9 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     $map_src = apply_filters('gmw_thumb_map_src', $map_src, $instance);
     $widget_content .= '<img width="' . $instance['thumb_width'] . 'px" height="' . $instance['thumb_height'] . 'px" alt="' . $map_alt . '" title="' . $map_alt . '" src="' . $map_src . '">';
 
-    if ($instance['thumb_link_type'] == 'lightbox' || 
-        $instance['thumb_link_type'] == 'replace' || 
-        $instance['thumb_link_type'] == 'interactive' || 
+    if ($instance['thumb_link_type'] == 'lightbox' ||
+        $instance['thumb_link_type'] == 'replace' ||
+        $instance['thumb_link_type'] == 'interactive' ||
         $instance['thumb_link_type'] == 'custom' ||
         $instance['thumb_link_type'] == 'custom_blank' ||
         $instance['thumb_link_type'] == 'map_blank') {
@@ -911,23 +933,23 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
 
     echo $out;
   } // widget
-  
-  
+
+
   // compatibility fixes for widgets prior to v3.0
   function upgrade_wiget_instance($instance) {
     $instance = wp_parse_args((array) $instance, self::$defaults);
-    
+
     if (isset($instance['core_ver']) && version_compare($instance['core_ver'], '3.0',  '>=')) {
-      return $instance; 
+      return $instance;
     }
-      
+
     // pin color is now in hex
     if ($instance['thumb_pin_color'][0] != '#') {
       $instance['thumb_pin_color'] = GMWP::convert_color($instance['thumb_pin_color']);
     } elseif (empty($instance['thumb_pin_color'])) {
       $instance['thumb_pin_color'] = '#ff0000';
     }
-    
+
     // if we had title before, we need it now too
     if (!empty($instance['lightbox_title']) && !in_array('title', $instance['lightbox_feature'])) {
       $instance['lightbox_feature'][] = 'title';
@@ -939,8 +961,8 @@ Bicycling - renders a layer of bike paths and/or bicycle-specific overlays" clas
     } elseif ($instance['lightbox_map_type'] != 'satellite') {
       $instance['lightbox_map_type'] = 'roadmap';
     }
-    
-    return $instance;    
+
+    return $instance;
   } // upgrade_widget_instance
 } // class GoogleMapsWidget
 endif;
