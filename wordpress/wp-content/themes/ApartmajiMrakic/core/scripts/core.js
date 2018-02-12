@@ -20,9 +20,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	for (var i = 0; i < CTA_btn.length; i++) {
 		CTA_btn[i].addEventListener('click', function(event){
+			var eventName = '';
+			event.target.classList.contains('book-cta') ? eventName = 'Book_CTA_Click' : eventName = 'CTA_Click';
 			var targetURL = event.target.href;
 			dataLayer.push({
-				event: 'CTA_Click',
+				event: eventName,
 				targetURL: targetURL
 			});
 		});

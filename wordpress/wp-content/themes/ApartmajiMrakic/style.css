@@ -1483,6 +1483,10 @@ RESPONSIVE STYLES
   justify-content: space-around;
 }
 
+#apartment-info p.item-text {
+  margin-bottom: 0.75em;
+}
+
 #portfolio-rooms-details {
   margin: 2em auto;
 }
@@ -1490,42 +1494,119 @@ RESPONSIVE STYLES
 #rooms-container {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
+  align-items: stretch;
+  flex-direction: row;
+  margin: 0 0 75px;
+}
+
+@media screen and (max-width: 1100px) {
+  #rooms-container {
+    flex-wrap: wrap;
+  }
 }
 
 #rooms-container .room-description {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   flex: 1;
-  max-width: 220px;
-  margin: 0 1.5em;
+  min-width: 200px;
+  margin: 0 0.5em;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
+#rooms-container .room-description:first-child {
+  margin-left: 0;
+}
+#rooms-container .room-description:last-child {
+  margin-right: 0;
+}
+
+@media screen and (max-width: 1100px) {
+  #rooms-container .room-description:nth-child(5) {
+    margin: 1em 0.5em 0 0;
+  }
+}
+
+@media screen and (max-width: 888px) {
+  #rooms-container .room-description:nth-child(4),
+  #rooms-container .room-description:nth-child(5) {
+    margin: 1em 0.5em 0;
+  }
+}
+
+@media screen and (max-width: 674px) {
+  #rooms-container .room-description,
+  #rooms-container .room-description:first-child {
+    margin: 1em 0.5em 0;
+  }
+}
+
+/* #rooms-container .room-description.is-inverted {
+  flex-direction: row-reverse;
+} */
+
 #rooms-container .room-description .room-image-container {
-  width: 200px;
+  width: 100%;
+  position: relative;
   height: 200px;
-  border-radius: 50%;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   display: flex;
   overflow: hidden;
-  margin: 1em 1em 2em;
+  /* margin-right: 40px; */
+  /* margin: 1em 1em 2em; */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15)
 }
+
+#rooms-container .room-description .room-image-container .room-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1em;
+}
+
+#rooms-container .room-description .room-image-container .room-image-overlay h4.room-name {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* #rooms-container .room-description.is-inverted .room-image-container {
+  margin-right: 0;
+  margin-left: 40px;
+} */
 
 #rooms-container .room-description .room-content-container {
   flex: 1;
   width: 100%;
+  padding: 1em;
 }
 
-#rooms-container .room-description .room-content-container h4.room-name {
-  text-align: center;
-}
-
-#rooms-container .room-description .room-content-container hr.content-divider {
-  margin: 0 0 20px;
+#rooms-container .room-description hr.content-divider {
+  margin: 0 40px;
+  border-bottom: 1px solid #bbb;
+  background: #bbb;
+  height: 100px;
+  width: 2px;
 }
 
 #rooms-container .room-description .room-content-container > p {
-  padding: 0 0.5em;
+  padding: 0 1em;
+  margin: 0.5em 0;
+  text-align: center;
+  /* display: inline-block; */
 }
 
 @supports (object-fit: cover) {
@@ -1562,4 +1643,43 @@ RESPONSIVE STYLES
 
 .cta > this {
   border-radius: 5px;
+}
+
+footer#footer.footer .menu-item a {
+  color: #fff;
+}
+
+#site-authors {
+  background: #222;
+  text-align: center;
+  font-size: 12px;
+  padding: 0.75em;
+  color: #fafafa;
+}
+
+#site-authors > a {
+  color: #fafafa;
+  font-weight: bold;
+}
+
+#portfolio-book-apartment {
+  margin: 2em 0 5em;
+}
+
+#portfolio-book-apartment h2 {
+  margin-bottom: 0.25em;
+  text-align: center;
+}
+
+#portfolio-book-apartment h3 {
+  color: #444;
+  font-size: 18px;
+  text-align: center;
+}
+
+#portfolio-book-apartment a.ctsc-button {
+  background: linear-gradient(to bottom, #6a3e37 0%, #502e29 100%);
+  background: -webkit-linear-gradient(to bottom, #6a3e37 0%, #502e29 100%);
+  /* margin-left: unset;
+  margin-right: unset; */
 }

@@ -35,6 +35,7 @@ if(!function_exists('cpotheme_cpost_portfolio')){
 		'rewrite' => array('slug' => apply_filters('cpotheme_slug_portfolio', $slug)),
 		'capability_type' => 'post',
 		'hierarchical' => false,
+		'show_in_menu' => false,
 		'menu_icon' => 'dashicons-portfolio',
 		'menu_position' => null,
 		'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes')); 
@@ -82,7 +83,7 @@ if(!function_exists('cpotheme_tax_portfoliocategory')){
 		'labels' => $labels,
 		'public' => true,
 		'show_ui' => true,
-		'show_in_nav_menus' => true,
+		'show_in_nav_menus' => false,
 		'show_tagcloud' => true,
 		'rewrite' => array('slug' => apply_filters('cpotheme_slug_portfolio_category', $slug)),
 		'hierarchical' => true); 
@@ -114,7 +115,7 @@ if(!function_exists('cpotheme_tax_portfoliotag')){
 		'labels' => $labels,
 		'public' => true,
 		'show_ui' => true,
-		'show_in_nav_menus' => true,
+		'show_in_nav_menus' => false,
 		'show_tagcloud' => true,
 		'rewrite' => array('slug' => apply_filters('cpotheme_slug_portfolio_tag', $slug)),
 		'hierarchical' => false); 

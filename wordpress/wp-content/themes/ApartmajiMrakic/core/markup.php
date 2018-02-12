@@ -226,7 +226,7 @@ if(!function_exists('cpotheme_logo')){
 						$logo_url = $assets_url . $default_logo;
 					}
 				}
-				$output .= '<a class="site-logo" href="'.home_url().'"><img src="'. $logo_url . '" alt="'.get_bloginfo('name').'" width="250" height="'.esc_attr($height).'"/></a>';
+				$output .= '<a class="site-logo" href="'.home_url().'"><img src="'. $logo_url . '" alt="'.get_bloginfo('name').'" width="230" height="'.esc_attr($height).'"/></a>';
 			}else{
 				$logo_width = cpotheme_get_option('general_logo_width');
 				$logo_url = esc_url(cpotheme_get_option('general_logo'));

@@ -38,7 +38,7 @@ if(!function_exists('cpotheme_cpost_services')){
 		'hierarchical' => false,
 		'menu_icon' => 'dashicons-archive',
 		'menu_position' => null,
-		'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes')); 
+		'supports' => array('title', 'excerpt', 'thumbnail', 'page-attributes')); 
 		
 		register_post_type('cpo_service', $fields);
 	}

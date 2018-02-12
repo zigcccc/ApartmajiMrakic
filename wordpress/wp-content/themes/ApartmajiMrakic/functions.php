@@ -10,7 +10,7 @@ define('CPOTHEME_USE_PORTFOLIO', true);
 define('CPOTHEME_USE_SERVICES', true);
 define('CPOTHEME_USE_TESTIMONIALS', true);
 //define('CPOTHEME_USE_TEAM', true);
-define('CPOTHEME_USE_CLIENTS', true);
+//define('CPOTHEME_USE_CLIENTS', true);
 define('CPOTHEME_THUMBNAIL_WIDTH', '400');
 define('CPOTHEME_THUMBNAIL_HEIGHT', '400');
 		
@@ -41,3 +41,17 @@ require get_template_directory() . '/core/welcome-screen/welcome-page-setup.php'
 pll_register_string('basic_info', 'Osnovne informacije', 'Apartma', false);
 pll_register_string('extras', 'Dodatna oprema', 'Apartma', false);
 pll_register_string('rooms', 'O sobah', 'Apartma', false);
+
+
+
+// Add custom options page for Cubillis
+if (function_exists('acf_add_options_page')) {
+	acf_add_options_page(array(
+		'page_title' => 'Cubilis',
+		'menu_title' => 'Cubilis',
+		'menu_slug' => 'Cubilis',
+		'capability' => 'edit_posts',
+		'position' => 40,
+		'icon_url' => 'dashicons-media-code'
+	));
+}
