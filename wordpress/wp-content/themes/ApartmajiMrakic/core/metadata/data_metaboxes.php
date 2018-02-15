@@ -206,13 +206,13 @@ function cpotheme_metadata_service_options(){
 	'desc' => __('Sets an icon to be used as the service preview.', 'cpotheme'),
 	'type' => 'iconlist');
 	
-	$data['service_layout'] = array(
-	'name' => 'service_layout',
-	'std'  => '',
-	'label' => __('Media Layout', 'cpotheme'),
-	'desc' => __('Specifies how the images attached to this item should be displayed. The featured image will be excluded from the list of elements.', 'cpotheme'),
-	'type' => 'select',
-	'option' => cpotheme_metadata_media());
+	// $data['service_layout'] = array(
+	// 'name' => 'service_layout',
+	// 'std'  => '',
+	// 'label' => __('Media Layout', 'cpotheme'),
+	// 'desc' => __('Specifies how the images attached to this item should be displayed. The featured image will be excluded from the list of elements.', 'cpotheme'),
+	// 'type' => 'select',
+	// 'option' => cpotheme_metadata_media());
 	
 	return apply_filters('cpotheme_metadata_service', $data);
 }

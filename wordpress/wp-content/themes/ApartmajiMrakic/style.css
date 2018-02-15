@@ -485,7 +485,7 @@ input[type="submit"]:hover {
 .testimonial-list .testimonial .guest-review-container .guest-review {
   font-size: 64px;
   font-weight: bold;
-  color: #6a3e37;
+  color: #D45113;
 }
 .testimonial-list .testimonial-content {
   position: relative;
@@ -1677,9 +1677,11 @@ footer#footer.footer .menu-item a {
   text-align: center;
 }
 
-#portfolio-book-apartment a.ctsc-button {
-  background: linear-gradient(to bottom, #6a3e37 0%, #502e29 100%);
-  background: -webkit-linear-gradient(to bottom, #6a3e37 0%, #502e29 100%);
+#portfolio-book-apartment a.ctsc-button,
+body .ctsc-button, 
+body .ctsc-button:visited {
+  background: linear-gradient(to bottom, #D45113 0%, rgb(204, 77, 18) 100%) !important;
+  background: -webkit-linear-gradient(to bottom, #D45113 0%, rgb(204, 77, 18) 100%) !important;
   /* margin-left: unset;
   margin-right: unset; */
 }
