@@ -1381,7 +1381,9 @@ if ( !function_exists('cpotheme_show_header_image') ) {
 	function cpotheme_show_header_image() {
 		if ( cpotheme_show_title() ) {
 			$header_image = cpotheme_header_image();
-			if($header_image != '') $header_image = 'style="background-image:url('.esc_url($header_image).');"';
+			$header_overlay = get_theme_mod('header_overlay_amount') / 100;
+			$background_image = "background-image: linear-gradient(rgba(0,0,0,$header_overlay),rgba(0,0,0,$header_overlay)), url($header_image);";
+			if($header_image != '') $header_image = 'style="'. $background_image .'"';
 			echo $header_image;
 		}
 	}

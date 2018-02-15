@@ -77,6 +77,25 @@ function cpotheme_styling_css(){
 			color:<?php echo $color_body; ?>; 
 			<?php endif; ?>
 		}
+
+		.language-active {
+			color: #2a2a2a;
+			display: flex;
+			align-items: center;
+		}
+
+		.menu-main .menu-item > a::after {
+			background: #efefef;
+		}
+
+		#footer {
+			background-color: #ccc;
+		}
+
+		#footer .footer-content,
+		footer#footer.footer .menu-item a {
+			color: <?php echo $color_headings; ?>;
+		}
 		
 		
 		<?php if($color_links != ''): ?>
@@ -90,9 +109,17 @@ function cpotheme_styling_css(){
 		.primary-color-bg { background-color:<?php echo $primary_color; ?>; }
 		.primary-color-border { border-color:<?php echo $primary_color; ?>; }
 		.menu-item.menu-highlight > a { background-color:<?php echo $primary_color; ?>; }
+		.menu-main .menu-item.menu-highlight:hover>a{background: <?php echo $primary_color;?>;}
 		.tp-caption.primary_color_background { background:<?php echo $primary_color; ?>; }
 		.tp-caption.primary_color_text{ color:<?php echo $primary_color; ?>; }
 		.widget_nav_menu a .menu-icon { color:<?php echo $primary_color; ?>; }
+		.testimonial-list .testimonial .guest-review-container .guest-review {color: <?php echo $primary_color; ?>;}
+		.portfolio-heading {color: <?php echo $color_headings; ?> !important;}
+		.sub-menu .menu-item > a::after, .sub-menu .current-menu-item > a::after, .sub-menu .current-menu-ancestor > a::after {background: <?php echo $primary_color; ?>;}
+		.sub-menu .menu-item:hover > a::after, .sub-menu .current-menu-item > a::after, .sub-menu .current-menu-ancestor > a::after {background: <?php echo $primary_color; ?>;}
+		.portfolio-item .portfolio-item-title{color: <?php echo $color_headings; ?>;}
+		body .ctsc-button{background: <?php echo $primary_color; ?>!important;}
+		.ctsc-feature-icon{background: <?php echo $color_headings; ?>!important;}
 		
 		.button, .button:link, .button:visited, input[type=submit] { background-color:<?php echo $primary_color; ?>; }
 		.button:hover, input[type=submit]:hover { background-color:<?php echo $primary_color; ?>; }
@@ -106,7 +133,8 @@ function cpotheme_styling_css(){
 		.secondary-color-bg { background-color:<?php echo $secondary_color; ?>; }
 		.secondary-color-border { border-color:<?php echo $secondary_color; ?>; }
 		.tp-caption.secondary_color_background { background:<?php echo $secondary_color; ?>; }
-		.tp-caption.secondary_color_text{ color:<?php echo $secondary_color; ?>; }		
+		.tp-caption.secondary_color_text{ color:<?php echo $secondary_color; ?>; }
+		.menu-main .has-children:before{color: #efefef;}
 		<?php endif; ?>	
 
 

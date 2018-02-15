@@ -55,3 +55,27 @@ if (function_exists('acf_add_options_page')) {
 		'icon_url' => 'dashicons-media-code'
 	));
 }
+
+function am_header_overlay($wp_customize) {
+	$wp_customize -> add_section( 'header_overlay', array(
+		'title' => __('Header overlay'),
+		'priority' => 20
+	));
+	$wp_customize -> add_setting('header_overlay_amount', array(
+		'type' => 'theme_mod',
+		'transport' => 'refresh',
+		'capability' => 'edit_theme_options'
+	));
+	$wp_customize -> add_control('header_overlay_amount', array(
+		'type' => 'number',
+		'priority' => 20,
+		'section' => 'header_overlay',
+		'label' => __('Set intensity of header overlay'),
+		'input_attrs' => array(
+			'min' => 0,
+			'max' => 100,
+			'step' => 5
+		)
+	));
+}
+add_action( 'customize_register', 'am_header_overlay' );

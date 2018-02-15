@@ -918,6 +918,7 @@ NAVIGATION
 .menu-main .menu-highlight.current_page_ancestor > a,
 .menu-main .menu-highlight.current-menu-item > a {
   color: #efefef !important;
+  padding-top: 10px !important;
 }
 
 .menu-main .menu-item.menu-highlight:hover {
@@ -938,7 +939,7 @@ NAVIGATION
 
 .menu-item.menu-highlight > a {
   /* background-color: #efefef !important; */
-  border-radius: 5px;
+  border-radius: 3px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   margin-left: 1em;
   transition: 200ms ease-in-out all;
@@ -1013,6 +1014,7 @@ NAVIGATION
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+  padding-top: 15px !important;
 }
 /* Icon and Description */
 .menu-main li:hover > a,
@@ -1024,10 +1026,6 @@ NAVIGATION
 .menu-main .current-menu-item > a {
   color: #efefef !important;
   font-weight: bold;
-}
-
-.sub-menu .current-menu-item > a {
-  color: #D45113 !important;
 }
 
 .menu-main .menu-item > a::after {

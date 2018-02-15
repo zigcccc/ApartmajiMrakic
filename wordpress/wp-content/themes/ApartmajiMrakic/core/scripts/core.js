@@ -30,3 +30,32 @@ document.addEventListener('DOMContentLoaded', function(){
 		});
 	}
 });
+
+
+// Fixed menu on scroll
+
+// var header = document.getElementById('header');
+// var headerOffset = header.offsetTop;
+
+// if (document.scrollingElement.scrollTop >= headerOffset) {
+// 	if (document.querySelector('body').classList.contains('logged-in')) {
+// 		!header.classList.contains('fixed-while-logged-in') ? header.classList.add('fixed-while-logged-in') : null;	
+// 	}
+// 	!header.classList.contains('is-fixed') ? header.classList.add('is-fixed') : null;
+// }
+
+// document.addEventListener('scroll', function(e){
+// 	var pageOffset = e.target.scrollingElement.scrollTop;
+// 	if (pageOffset >= headerOffset) {
+// 		if (document.querySelector('body').classList.contains('logged-in')) {
+// 			!header.classList.contains('fixed-while-logged-in') ? header.classList.add('fixed-while-logged-in') : null;	
+// 		}
+// 		!header.classList.contains('is-fixed') ? header.classList.add('is-fixed') : null;
+// 	}
+// 	else {
+// 		if (document.querySelector('body').classList.contains('logged-in')) {
+// 			header.classList.contains('fixed-while-logged-in') ? header.classList.remove('fixed-while-logged-in') : null;	
+// 		}
+// 		header.classList.contains('is-fixed') ? header.classList.remove('is-fixed') : null;
+// 	}
+// });

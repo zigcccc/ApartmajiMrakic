@@ -632,6 +632,8 @@ input[type="submit"]:hover {
 .menu-main {
   padding-top: 0;
   float: right;
+  display: flex;
+  align-items: center;
 }
 /* Menu Elements */
 .menu-main li a {
@@ -1109,8 +1111,8 @@ input[type="submit"]:hover {
   transition: 0.3s all;
 }
 .portfolio-item .portfolio-item-overlay {
-  background: rgba(0, 0, 0, 0.3);
-  opacity: 0.65;
+  background: rgba(0,0,0,0);
+  opacity: 1;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -1122,7 +1124,25 @@ input[type="submit"]:hover {
   transition: 0.3s all;
   z-index: 9999;
 }
+.portfolio-item:hover .portfolio-item-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
 .portfolio-item .portfolio-item-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-bottom: 0;
+  -moz-transition: 0.4s all;
+  -webkit-transition: 0.4s all;
+  transition: 0.4s all;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0.75em 1em;
+  background: #fbfbfb;
+}
+
+.portfolio-item .portfolio-item-description {
   position: absolute;
   top: 10%;
   width: 80%;
@@ -1131,18 +1151,13 @@ input[type="submit"]:hover {
   -moz-transition: 0.4s all;
   -webkit-transition: 0.4s all;
   transition: 0.4s all;
-}
-.portfolio-item .portfolio-item-description {
-  position: absolute;
-  top: 50%;
-  width: 80%;
-  margin-left: 10%;
-  margin-right: 10%;
-  -moz-transition: 0.4s all;
-  -webkit-transition: 0.4s all;
-  transition: 0.4s all;
   opacity: 0;
+  transform: translateY(100%);
 }
+.portfolio-item:hover .portfolio-item-description {
+  transform: translateY(0);
+}
+
 .portfolio-item a:hover {
   text-decoration: none;
 }
@@ -1514,7 +1529,6 @@ RESPONSIVE STYLES
   min-width: 200px;
   margin: 0 0.5em;
   background: #fff;
-  border-radius: 5px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -1553,8 +1567,6 @@ RESPONSIVE STYLES
   width: 100%;
   position: relative;
   height: 200px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
   display: flex;
   overflow: hidden;
   /* margin-right: 40px; */
@@ -1568,8 +1580,6 @@ RESPONSIVE STYLES
   left: 0;
   right: 0;
   bottom: 0;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1714,3 +1724,43 @@ body .ctsc-button:visited {
     text-align: center;
   }
 }
+
+.topbar {
+  height: 30px;
+}
+
+body.home #header {
+  top: 40px;
+}
+
+.menu-has-icon > a .menu-link,
+.language-active {
+  color: #2a2a2a;
+  font-weight: bold;
+}
+
+.menu-item.menu-highlight > a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1em;
+  right: 0;
+  background: #fbfbfb;
+  opacity: 0;
+  border-radius: 3px;
+  transition: 200ms ease-in-out opacity;
+}
+
+.menu-item.menu-highlight:hover > a::before {
+  opacity: 0.1;
+}
+
+.menu-main .menu-item:hover > a::after, .menu-main .current-menu-item > a::after, .menu-main .current-menu-ancestor > a::after {
+  background: #efefef;
+}
+
+.page-template-template-portfolio section#portfolio {
+  padding-bottom: 0;
+}
+

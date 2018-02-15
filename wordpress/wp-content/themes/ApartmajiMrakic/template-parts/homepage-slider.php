@@ -10,7 +10,12 @@
 		<?php $slide_color = get_post_meta(get_the_ID(), 'slide_color', true); ?>
 		<?php $slide_link = get_post_meta(get_the_ID(), 'slide_link', true); ?>
 		<?php $slide_url = get_post_meta(get_the_ID(), 'slide_url', true); ?>
-		<div id="slide_<?php echo $slide_count; ?>" class="slide cycle-slide-active <?php echo $slide_position.' '.$slide_color; ?>" style="background-image:url(<?php echo $image_url[0]; ?>);">
+		<?php 
+			$header_tint = get_theme_mod('header_overlay_amount') / 100;
+			$background_image_src = $image_url[0];
+			$background_image = "background-image: linear-gradient(rgba(0,0,0,$header_tint),rgba(0,0,0,$header_tint)), url($background_image_src);";
+		?>
+		<div id="slide_<?php echo $slide_count; ?>" class="slide cycle-slide-active <?php echo $slide_position.' '.$slide_color; ?>" style="<?php echo $background_image; ?>">
 			<div class="slide-body">
 				<div class="container">
 					<div class="slide-caption">
