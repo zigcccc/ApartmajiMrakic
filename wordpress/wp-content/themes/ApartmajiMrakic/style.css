@@ -1685,3 +1685,32 @@ body .ctsc-button:visited {
   /* margin-left: unset;
   margin-right: unset; */
 }
+
+@media screen and (max-width: 768px){
+  .slider-slides {
+    height: auto !important;
+    min-height: 500px;
+  }
+  .slider-slides .slide-body {
+    top: 110px;
+  }
+  .slider-slides .slide-body .slide-caption {
+    margin: 0 1em;
+  }
+
+  #features .row .column.col5 {
+    width: 100%;
+  }
+
+  @supports (display: flex) {
+    #footermenu .menu-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  #footer .footer-content {
+    text-align: center;
+  }
+}
