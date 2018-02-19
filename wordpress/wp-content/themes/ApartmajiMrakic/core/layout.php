@@ -120,6 +120,7 @@ function cpotheme_styling_css(){
 		.portfolio-item .portfolio-item-title{color: <?php echo $color_headings; ?>;}
 		body .ctsc-button{background: <?php echo $primary_color; ?>!important;}
 		.ctsc-feature-icon{background: <?php echo $color_headings; ?>!important;}
+		#portfolio-book-apartment a.ctsc-button, body .ctsc-button, body .ctsc-button:visited {background-color: <?php echo $primary_color; ?>;}
 		
 		.button, .button:link, .button:visited, input[type=submit] { background-color:<?php echo $primary_color; ?>; }
 		.button:hover, input[type=submit]:hover { background-color:<?php echo $primary_color; ?>; }

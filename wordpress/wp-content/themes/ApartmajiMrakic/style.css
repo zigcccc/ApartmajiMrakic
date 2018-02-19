@@ -1687,15 +1687,6 @@ footer#footer.footer .menu-item a {
   text-align: center;
 }
 
-#portfolio-book-apartment a.ctsc-button,
-body .ctsc-button, 
-body .ctsc-button:visited {
-  background: linear-gradient(to bottom, #D45113 0%, rgb(204, 77, 18) 100%) !important;
-  background: -webkit-linear-gradient(to bottom, #D45113 0%, rgb(204, 77, 18) 100%) !important;
-  /* margin-left: unset;
-  margin-right: unset; */
-}
-
 @media screen and (max-width: 768px){
   .slider-slides {
     height: auto !important;
@@ -1764,3 +1755,19 @@ body.home #header {
   padding-bottom: 0;
 }
 
+.slide .slide-link.button,
+#portfolio-book-apartment a.ctsc-button {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  transition: 200ms ease-in-out all;
+}
+
+.slide .slide-link.button:hover,
+#portfolio-book-apartment a.ctsc-button:hover {
+  transform: translateY(-3px);
+}
+
+.slider .slider-pages {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}

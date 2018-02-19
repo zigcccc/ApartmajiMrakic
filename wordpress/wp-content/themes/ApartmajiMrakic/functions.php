@@ -56,6 +56,25 @@ if (function_exists('acf_add_options_page')) {
 	));
 }
 
+function am_example_apartments($wp_customize){
+	$wp_customize -> add_section('example_apartments', array(
+		'title' => __('Show example apartments'),
+		'priority' => 10
+	));
+	$wp_customize -> add_setting('show_example_apartments', array(
+		'type' => 'theme_mod',
+		'transport' => 'refresh',
+		'capability' => 'edit_theme_options'
+	));
+	$wp_customize -> add_control('show_example_apartments', array(
+		'type' => 'checkbox',
+		'priority' => 10,
+		'section' => 'example_apartments',
+		'label' => 'Choose if you want to show example apartments images'
+	));
+}
+add_action( 'customize_register', 'am_example_apartments' );
+
 function am_header_overlay($wp_customize) {
 	$wp_customize -> add_section( 'header_overlay', array(
 		'title' => __('Header overlay'),
