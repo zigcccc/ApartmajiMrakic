@@ -1022,11 +1022,11 @@ NAVIGATION
   text-decoration: none;
 }
 /* Current item highlight both normally and on hover */
-.menu-main .current-menu-ancestor > a,
+/* .menu-main .current-menu-ancestor > a,
 .menu-main .current-menu-item > a {
   color: #efefef !important;
   font-weight: bold;
-}
+} */
 
 .menu-main .menu-item > a::after {
   content: "";
@@ -1218,7 +1218,7 @@ NAVIGATION
   width: auto;
   line-height: 1.5;
   height: auto;
-  padding: 10px;
+  padding: 5px;
 }
 /* Open Button */
 .menu-mobile-open {

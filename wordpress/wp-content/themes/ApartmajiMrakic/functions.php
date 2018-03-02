@@ -54,6 +54,14 @@ if (function_exists('acf_add_options_page')) {
 		'position' => 40,
 		'icon_url' => 'dashicons-media-code'
 	));
+	acf_add_options_page(array(
+		'page_title' => 'Homepage Settings',
+		'menu_title' => 'Homepage',
+		'menu_slug' => 'homepage_settings',
+		'capability' => 'edit_posts',
+		'position' => 40,
+		'icon_url' => 'dashicons-admin-home'
+	));
 }
 
 function am_example_apartments($wp_customize){

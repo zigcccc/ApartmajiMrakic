@@ -1502,6 +1502,16 @@ RESPONSIVE STYLES
   margin-bottom: 0.75em;
 }
 
+@media screen and (max-width: 768px) {
+  #apartment-info {
+    display: block;
+  }
+  #apartment-info > div {
+    margin-bottom: 2em;
+    padding: 0 1em;
+  }
+}
+
 #portfolio-rooms-details {
   margin: 2em auto;
 }
@@ -1689,7 +1699,7 @@ footer#footer.footer .menu-item a {
 
 @media screen and (max-width: 768px){
   .slider-slides {
-    height: auto !important;
+    /* height: auto !important; */
     min-height: 500px;
   }
   .slider-slides .slide-body {
@@ -1770,4 +1780,79 @@ body.home #header {
   margin: 0 auto;
   display: flex;
   justify-content: center;
+}
+
+section#portfolio-360-image {
+  margin-bottom: 40px;
+}
+
+section#portfolio-360-image h3 {
+  text-align: center;
+}
+
+.testimonials.has-image-background {
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.testimonials.has-image-background .testimonial .testimonial-content > p,
+.testimonials.has-image-background .testimonial .testimonial-author .testimonial-description,
+.testimonials.has-image-background .testimonial .guest-review-container .guest-review,
+.testimonials.has-image-background .heading,
+.testimonials.has-image-background .testimonial-pages .testimonial-page  {
+  color: #efefef !important;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.testimonials.has-image-background .testimonial .testimonial-author .testimonial-description {
+  font-weight: normal;
+}
+
+.testimonials.has-image-background .testimonial .testimonial-author .testimonial-name {
+  color: #efefef !important;
+  font-weight: bold;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.testimonials.has-image-background .testimonial-pages .cycle-pager-active {
+  background: none;
+}
+
+
+@media screen and (max-width: 800px) {
+  .menu-main {
+    display: none;
+  }
+  .menu-mobile-open {
+    margin: 5px 10px;
+  }
+  .slider-pager {
+    bottom: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .ctsc-column > p > img {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .ctsc-column > .ctsc-feature {
+    text-align: center;
+  }
+  .ctsc-column > .ctsc-feature > .ctsc-feature-icon {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ctsc-column > .ctsc-definition {
+    text-align: center;
+    margin-bottom: 2.5em;
+  }
+  form.wpcf7-form input[type=submit] {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
 }

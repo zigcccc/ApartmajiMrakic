@@ -54,12 +54,28 @@
   </section>
 <?php endif; ?>
 
+
 <!-- PORTFOLIO IMAGES -->
 <?php if(get_field('galerija_apartmaja') != null): ?>
   <section id="portfolio-gallery">			
     <?php echo get_field('galerija_apartmaja'); ?>
   </section>
 <?php endif; ?>
+
+<?php if (have_rows('360_posnetek_apartmaja')): while (have_rows('360_posnetek_apartmaja')): the_row(); ?>
+  <section id="portfolio-360-image">
+    
+      <h3><strong><?php echo get_sub_field('naslov_sekcije'); ?><strong></h3>
+      <?php
+        $image_360 = get_sub_field('posnetek');
+        $widget = do_shortcode( '[vrview img="' . $image_360 . '" width="100%" height="400px" ]');
+        echo apply_filters('the_content', $widget);
+      ?>
+    
+  </section>
+  <?php endwhile; ?>
+<?php endif; ?>
+
 <?php //cpotheme_post_media(get_the_ID(), get_post_meta(get_the_ID(), 'portfolio_layout', true)); ?>
 <?php get_sidebar(); ?>
 <div class="clear"></div>
