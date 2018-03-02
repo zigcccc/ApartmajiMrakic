@@ -1820,6 +1820,12 @@ section#portfolio-360-image h3 {
   background: none;
 }
 
+@media screen and (max-width: 600px) {
+  .languages img {
+    display: block;
+  }
+}
+
 
 @media screen and (max-width: 800px) {
   .menu-main {
