@@ -1824,6 +1824,9 @@ section#portfolio-360-image h3 {
   .languages img {
     display: block;
   }
+  .language-list .language-item > img {
+    display: inline-block;
+  }
 }
 
 
